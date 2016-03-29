@@ -1,0 +1,288 @@
+From 0b41ed83f058c3fbad8a9403440aa69ed49afbda Mon Sep 17 00:00:00 2001
+From: Yonattan Louise <yonattan.a.louise.mendoza@linux.intel.com>
+Date: Wed, 4 Mar 2015 16:50:12 -0600
+Subject: [PATCH QEMU] armv7m support basepri + primask interrupt locking
+
+Due to interrupt locking for ARM has not been implemented by QEMU, we provide
+a temporal solution that fix this issue for the Cortex-M3 procesor on
+the lm3s6965evb machine. It hasn't been tested for other configuration.
+
+This solution is for internal use. It is not ready for QEMU upstream.
+
+Solution created by Benjamin Walsh for qemu v1.5, and ported by
+Yonattan Louise for qemu v2.x.
+
+*****************************************************************************
+DISCLAIMER: The code contained in this patch cannot be used outside of Intel
+or Windriver. It is not to be shared with other entities or persons.
+*****************************************************************************
+
+Signed-off-by: Yonattan Louise <yonattan.a.louise.mendoza@linux.intel.com>
+Signed-off-by: Dirk Brandewie <dirk.j.brandewie@intel.com>
+---
+ cpu-exec.c             | 24 +++++++++++++++++++++---
+ hw/intc/arm_gic.c      | 22 ++++++++++++++++++++++
+ hw/intc/armv7m_nvic.c  | 20 ++++++++++++++++++++
+ hw/intc/gic_internal.h |  2 ++
+ target-arm/cpu-qom.h   |  1 +
+ target-arm/cpu.h       |  2 ++
+ target-arm/helper.c    | 39 ++++++++++++++++++++++++++++++++++++++-
+ 7 files changed, 106 insertions(+), 4 deletions(-)
+
+diff --git a/cpu-exec.c b/cpu-exec.c
+index 38e5f02..f5110c2 100644
+--- a/cpu-exec.c
++++ b/cpu-exec.c
+@@ -213,6 +213,12 @@ static void cpu_handle_debug_exception(CPUArchState *env)
+ 
+ volatile sig_atomic_t exit_request;
+ 
++#if 0
++  #define ben_printf(fmt, ...) printf(fmt, ## __VA_ARGS__)
++#else
++  #define ben_printf(fmt, ...)
++#endif
++
+ int cpu_exec(CPUArchState *env)
+ {
+     CPUState *cpu = ENV_GET_CPU(env);
+@@ -492,9 +498,21 @@ int cpu_exec(CPUArchState *env)
+                        the stack if an interrupt occurred at the wrong time.
+                        We avoid this by disabling interrupts when
+                        pc contains a magic address.  */
+-                    if (interrupt_request & CPU_INTERRUPT_HARD
+-                        && ((IS_M(env) && env->regs[15] < 0xfffffff0)
+-                            || !(env->daif & PSTATE_I))) {
++
++                    int is_m_do_irq = !IS_M(env) || (
++                        (env->regs[15] < 0xfffffff0)
++#if !defined(TARGET_AARCH64) && !defined(CONFIG_USER_ONLY)
++                        &&  arm_v7m_basepri_check(cpu) );
++#else
++			);
++#endif
++                    int handle_irq = (
++                        (interrupt_request & CPU_INTERRUPT_HARD) &&
++                         is_m_do_irq && !(env->daif & PSTATE_I) );
++                    ben_printf("handle_irq: %d, is_m_do_irq: %d\n",
++                        handle_irq, is_m_do_irq);
++
++                    if (handle_irq) {
+                         cpu->exception_index = EXCP_IRQ;
+                         cc->do_interrupt(cpu);
+                         next_tb = 0;
+diff --git a/hw/intc/arm_gic.c b/hw/intc/arm_gic.c
+index 1532ef9..a196ed1 100644
+--- a/hw/intc/arm_gic.c
++++ b/hw/intc/arm_gic.c
+@@ -47,6 +47,12 @@ static inline int gic_get_current_cpu(GICState *s)
+ 
+ /* TODO: Many places that call this routine could be optimized.  */
+ /* Update interrupt status after enabled or pending bits have been changed.  */
++#if 0
++  #define ben_printf(fmt, ...) printf(fmt, ## __VA_ARGS__)
++#else
++  #define ben_printf(fmt, ...)
++#endif
++
+ void gic_update(GICState *s)
+ {
+     int best_irq;
+@@ -78,6 +84,9 @@ void gic_update(GICState *s)
+             s->current_pending[cpu] = best_irq;
+             if (best_prio < s->running_priority[cpu]) {
+                 DPRINTF("Raised pending IRQ %d (cpu %d)\n", best_irq, cpu);
++                ben_printf("Raised pending exc %d (cpu %d) (prio: %x)\n",
++				       best_irq >= 16 ? best_irq - 16 : best_irq,
++				       cpu, best_prio);
+                 level = 1;
+             }
+         }
+@@ -93,6 +102,7 @@ void gic_set_pending_private(GICState *s, int cpu, int irq)
+         return;
+     }
+ 
++    ben_printf("%s with %d\n", __FUNCTION__, irq);
+     DPRINTF("Set %d pending cpu %d\n", irq, cpu);
+     GIC_SET_PENDING(irq, cm);
+     gic_update(s);
+@@ -177,6 +187,18 @@ static void gic_set_running_irq(GICState *s, int cpu, int irq)
+     gic_update(s);
+ }
+ 
++int gic_get_next_irq(GICState *s, int cpu)
++{
++    int irq = s->current_pending[cpu];
++    int prio_check = GIC_GET_PRIORITY(irq, cpu) < s->running_priority[cpu];
++    return prio_check ? irq : 1023;
++}
++
++int gic_get_priority(GICState *s, int irq, int cpu)
++{
++    return GIC_GET_PRIORITY(irq, cpu);
++}
++
+ uint32_t gic_acknowledge_irq(GICState *s, int cpu)
+ {
+     int ret, irq, src;
+diff --git a/hw/intc/armv7m_nvic.c b/hw/intc/armv7m_nvic.c
+index 1a7af45..8465913 100644
+--- a/hw/intc/armv7m_nvic.c
++++ b/hw/intc/armv7m_nvic.c
+@@ -106,16 +106,29 @@ static void systick_reset(nvic_state *s)
+     timer_del(s->systick.timer);
+ }
+ 
++#if 0
++  #define ben_printf(fmt, ...) printf(fmt, ## __VA_ARGS__)
++#else
++  #define ben_printf(fmt, ...)
++#endif
++
+ /* The external routines use the hardware vector numbering, ie. the first
+    IRQ is #16.  The internal GIC routines use #32 as the first IRQ.  */
+ void armv7m_nvic_set_pending(void *opaque, int irq)
+ {
++    ben_printf("%s with %d\n", __FUNCTION__, irq);
+     nvic_state *s = (nvic_state *)opaque;
+     if (irq >= 16)
+         irq += 16;
+     gic_set_pending_private(&s->gic, 0, irq);
+ }
+ 
++int armv7m_nvic_get_priority(void *opaque, int irq, int cpu)
++{
++    nvic_state *s = (nvic_state *)opaque;
++    return gic_get_priority(&s->gic, irq, cpu);
++}
++
+ /* Make pending IRQ active.  */
+ int armv7m_nvic_acknowledge_irq(void *opaque)
+ {
+@@ -138,6 +151,12 @@ void armv7m_nvic_complete_irq(void *opaque, int irq)
+     gic_complete_irq(&s->gic, 0, irq);
+ }
+ 
++int armv7m_nvic_get_next_irq(void *opaque, int cpu)
++{
++    nvic_state *s = (nvic_state *)opaque;
++    return gic_get_next_irq(&s->gic, cpu);
++}
++
+ static uint32_t nvic_readl(nvic_state *s, uint32_t offset)
+ {
+     ARMCPU *cpu;
+@@ -374,6 +393,7 @@ static void nvic_writel(nvic_state *s, uint32_t offset, uint32_t value)
+         break;
+     case 0xf00: /* Software Triggered Interrupt Register */
+         if ((value & 0x1ff) < s->num_irq) {
++            ben_printf("%s with %d\n", __FUNCTION__, value);
+             gic_set_pending_private(&s->gic, 0, value & 0x1ff);
+         }
+         break;
+diff --git a/hw/intc/gic_internal.h b/hw/intc/gic_internal.h
+index 48a58d7..f1a919f 100644
+--- a/hw/intc/gic_internal.h
++++ b/hw/intc/gic_internal.h
+@@ -61,6 +61,8 @@ void gic_complete_irq(GICState *s, int cpu, int irq);
+ void gic_update(GICState *s);
+ void gic_init_irqs_and_distributor(GICState *s, int num_irq);
+ void gic_set_priority(GICState *s, int cpu, int irq, uint8_t val);
++int gic_get_next_irq(GICState *s, int cpu);
++int gic_get_priority(GICState *s, int irq, int cpu);
+ 
+ static inline bool gic_test_pending(GICState *s, int irq, int cm)
+ {
+diff --git a/target-arm/cpu-qom.h b/target-arm/cpu-qom.h
+index ee4fbb1..860fb6d 100644
+--- a/target-arm/cpu-qom.h
++++ b/target-arm/cpu-qom.h
+@@ -191,6 +191,7 @@ void init_cpreg_list(ARMCPU *cpu);
+ 
+ void arm_cpu_do_interrupt(CPUState *cpu);
+ void arm_v7m_cpu_do_interrupt(CPUState *cpu);
++int arm_v7m_basepri_check(CPUState *cs);
+ 
+ void arm_cpu_dump_state(CPUState *cs, FILE *f, fprintf_function cpu_fprintf,
+                         int flags);
+diff --git a/target-arm/cpu.h b/target-arm/cpu.h
+index f101880..1c1ed5b 100644
+--- a/target-arm/cpu.h
++++ b/target-arm/cpu.h
+@@ -683,6 +683,8 @@ void arm_cpu_list(FILE *f, fprintf_function cpu_fprintf);
+ void armv7m_nvic_set_pending(void *opaque, int irq);
+ int armv7m_nvic_acknowledge_irq(void *opaque);
+ void armv7m_nvic_complete_irq(void *opaque, int irq);
++int armv7m_nvic_get_priority(void *opaque, int irq, int cpu);
++int armv7m_nvic_get_next_irq(void *opaque, int cpu);
+ 
+ /* Interface for defining coprocessor registers.
+  * Registers are defined in tables of arm_cp_reginfo structs
+diff --git a/target-arm/helper.c b/target-arm/helper.c
+index d343856..05b5333 100644
+--- a/target-arm/helper.c
++++ b/target-arm/helper.c
+@@ -3243,6 +3243,37 @@ static void switch_v7m_sp(CPUARMState *env, int process)
+     }
+ }
+ 
++static inline int _get_cur_basepri(CPUARMState *env)
++{
++    return (int)helper_v7m_mrs(env, 0x11);
++}
++
++#if 0
++  #define ben_printf(fmt, ...) printf(fmt, ## __VA_ARGS__)
++#else
++  #define ben_printf(fmt, ...)
++#endif
++
++int arm_v7m_basepri_check(CPUState *cs)
++{
++    ARMCPU *cpu = ARM_CPU(cs);
++    CPUARMState *env = &cpu->env;
++    int irq = armv7m_nvic_get_next_irq(env->nvic, 0);
++
++    if (irq == 1023)
++        return 0;
++
++    int basepri = _get_cur_basepri(env);
++    int irqpri  = armv7m_nvic_get_priority(env->nvic, irq, 0);
++
++    ben_printf("irq #%d; priority base: %x, irq: %x\n", irq, basepri, irqpri);
++
++    if (!basepri || (irqpri < basepri))
++        return 1;
++    else
++    return 0;
++}
++
+ static void do_v7m_exception_exit(CPUARMState *env)
+ {
+     uint32_t type;
+@@ -3294,6 +3325,7 @@ void arm_v7m_cpu_do_interrupt(CPUState *cs)
+        handle it.  */
+     /* TODO: Need to escalate if the current priority is higher than the
+        one we're raising.  */
++	ben_printf("ix: %d\n", env->exception_index);
+     switch (cs->exception_index) {
+     case EXCP_UDEF:
+         armv7m_nvic_set_pending(env->nvic, ARMV7M_EXCP_USAGE);
+@@ -3323,8 +3355,13 @@ void arm_v7m_cpu_do_interrupt(CPUState *cs)
+         armv7m_nvic_set_pending(env->nvic, ARMV7M_EXCP_DEBUG);
+         return;
+     case EXCP_IRQ:
+-        env->v7m.exception = armv7m_nvic_acknowledge_irq(env->nvic);
++        {
++        int exc = armv7m_nvic_acknowledge_irq(env->nvic);
++        ben_printf("exc #%d %s%d%s\n", exc,
++        exc >= 16 ? "(irq #":"", exc >= 16 ? exc - 16 : -1, exc >= 16 ? ")":"");
++        env->v7m.exception = exc;
+         break;
++        }
+     case EXCP_EXCEPTION_EXIT:
+         do_v7m_exception_exit(env);
+         return;
+-- 
+1.9.1
+

@@ -1,0 +1,99 @@
+diff --git bitbake/lib/bb/fetch2/__init__.py bitbake/lib/bb/fetch2/__init__.py
+index 288a1c8..8c80d7d 100644
+--- bitbake/lib/bb/fetch2/__init__.py
++++ bitbake/lib/bb/fetch2/__init__.py
+@@ -1407,6 +1407,10 @@ class FetchMethod(object):
+                     cmd = 'rpm2cpio.sh %s | cpio -id' % (file)
+             elif file.endswith('.deb') or file.endswith('.ipk'):
+                 cmd = 'ar -p %s data.tar.gz | zcat | tar --no-same-owner -xpf -' % file
++            elif file.endswith('.tar.7z'):
++                cmd = '7z x -so %s | tar xf - ' % file
++            elif file.endswith('.7z'):
++                cmd = '7za x -y %s 1>/dev/null' % file
+
+         if not unpack or not cmd:
+             # If file == dest, then avoid any copies, as we already put the file into dest!
+diff --git meta/classes/insane.bbclass meta/classes/insane.bbclass
+index 5c8629a..66f23d8 100644
+--- meta/classes/insane.bbclass
++++ meta/classes/insane.bbclass
+@@ -62,9 +62,11 @@ def package_qa_get_machine_dict():
+                         "arm" :       (40,     0,    0,          True,          32),
+                       },
+             "elf" : {
++                        "arc" :       (195,    0,    0,          True,          32),
+                         "i586" :      (3,      0,    0,          True,          32),
+                         "x86_64":     (62,     0,    0,          True,          64),
+                         "epiphany":   (4643,   0,    0,          True,          32),
++                        "mips":       ( 8,     0,    0,          False,         32),
+                       },
+             "linux" : { 
+                         "aarch64" :   (183,    0,    0,          True,          64),
+@@ -292,6 +294,7 @@ def package_qa_check_libdir(d):
+     pkgdest = d.getVar('PKGDEST', True)
+     base_libdir = d.getVar("base_libdir",True) + os.sep
+     libdir = d.getVar("libdir", True) + os.sep
++    libexecdir = d.getVar("libexecdir", True) + os.sep
+     exec_prefix = d.getVar("exec_prefix", True) + os.sep
+
+     messages = []
+@@ -319,7 +322,7 @@ def package_qa_check_libdir(d):
+                     if base_libdir not in rel_path:
+                         messages.append("%s: found library in wrong location: %s" % (package, rel_path))
+                 if exec_re.match(rel_path):
+-                    if libdir not in rel_path:
++                    if libdir not in rel_path and libexecdir not in rel_path:
+                         messages.append("%s: found library in wrong location: %s" % (package, rel_path))
+
+     if messages:
+diff --git meta/classes/kernel-arch.bbclass meta/classes/kernel-arch.bbclass
+index 211b72b..3ffe47c 100644
+--- meta/classes/kernel-arch.bbclass
++++ meta/classes/kernel-arch.bbclass
+@@ -31,6 +31,7 @@ def map_kernel_arch(a, d):
+     elif re.match('microblazee[bl]', a):        return 'microblaze'
+     elif a in valid_archs:                      return a
+     else:
++        if d.getVar("TCLIBC", True) == "baremetal": return a;
+         bb.error("cannot map '%s' to a linux kernel architecture" % a)
+ 
+ export ARCH = "${@map_kernel_arch(d.getVar('TARGET_ARCH', True), d)}"
+diff --git meta/classes/siteinfo.bbclass meta/classes/siteinfo.bbclass
+index 9f6eac4..eb302bc 100644
+--- meta/classes/siteinfo.bbclass
++++ meta/classes/siteinfo.bbclass
+@@ -20,6 +20,7 @@ def siteinfo_data(d):
+         "allarch": "endian-little bit-32", # bogus, but better than special-casing the checks below for allarch
+         "aarch64": "endian-little bit-64 arm-common arm-64",
+         "aarch64_be": "endian-big bit-64 arm-common arm-64",
++        "arc": "endian-little bit-32",
+         "arm": "endian-little bit-32 arm-common arm-32",
+         "armeb": "endian-big bit-32 arm-common arm-32",
+         "avr32": "endian-big bit-32 avr32-common",
+@@ -30,6 +31,7 @@ def siteinfo_data(d):
+         "i586": "endian-little bit-32 ix86-common",
+         "i686": "endian-little bit-32 ix86-common",
+         "ia64": "endian-little bit-64",
++        "iamcu": "endian-little bit-32",
+         "microblaze": "endian-big bit-32 microblaze-common",
+         "microblazeeb": "endian-big bit-32 microblaze-common",
+         "microblazeel": "endian-little bit-32 microblaze-common",
+diff --git scripts/relocate_sdk.py scripts/relocate_sdk.py
+index 992db5c..1ed0b3a 100755
+--- scripts/relocate_sdk.py
++++ scripts/relocate_sdk.py
+@@ -168,10 +168,12 @@ def change_dl_sysdirs():
+                     new_path = old_prefix.sub(new_prefix, path)
+                     # pad with zeros
+                     new_path += b("\0") * (4096 - len(new_path))
+-                    #print "Changing %s to %s at %s" % (str(path), str(new_path), str(offset))
++                    #print("Changing %s to %s at %s" % (str(path), str(new_path), str(offset)))
+                     # write it back
+                     f.seek(sh_offset + offset)
+-                    f.write(new_path)
++                    # Make sure we write out at most 4096 bytes.
++                    bytes_path = bytearray(new_path)
++                    f.write(bytes_path[:4096])
+                     offset = offset + 4096
+     if sysdirs != "" and sysdirslen != "":
+         paths = sysdirs.split(b("\0"))

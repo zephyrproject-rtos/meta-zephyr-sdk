@@ -34,7 +34,7 @@ B = "${WORKDIR}/gcc-${PV}/build.${HOST_SYS}.${TARGET_SYS}"
 FORTRAN = ""
 JAVA = ""
 
-LTO = "--disable-lto"
+LTO = "--enable-lto"
 
 EXTRA_OECONF_BASE = "\
     ${LTO} \

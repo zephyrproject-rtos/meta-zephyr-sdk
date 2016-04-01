@@ -28,24 +28,25 @@ else
 #  exit 1
 fi
 
-# Checkout the commit known to build... 
+# Checkout the commit known to build...
 cd poky
 # Security fixes
 git checkout ae57ea03c6a41f2e3b61e0c157e32ca7df7b3c4b
 
 if [ ! -d "meta-zephyr-sdk" ]; then
-  git clone git@github.com:otcshare/meta-zephyr-sdk.git
+  git clone https://gerrit.zephyrproject.org/r/p/meta-zephyr-sdk.git
+  cd meta-zephyr-sdk
+  git checkout tags/0.7.5
+  cd ..
   echo "Patching poky in: $PWD"
   # patches created by git diff --no-prefix
-  for i in ./meta-zephyr-sdk/poky-patches/*.patch; 
-    do 
-      patch -s -p0 < $i; 
+  for i in ./meta-zephyr-sdk/poky-patches/*.patch;
+    do
+      patch -s -p0 < $i;
     done
 fi
 
-cd meta-zephyr-sdk
-git checkout tags/0.7.5
-cd ..
+
 
 
 

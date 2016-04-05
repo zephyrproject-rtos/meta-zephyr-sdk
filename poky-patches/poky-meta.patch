@@ -78,22 +78,3 @@ index 9f6eac4..eb302bc 100644
          "microblaze": "endian-big bit-32 microblaze-common",
          "microblazeeb": "endian-big bit-32 microblaze-common",
          "microblazeel": "endian-little bit-32 microblaze-common",
-diff --git scripts/relocate_sdk.py scripts/relocate_sdk.py
-index 992db5c..1ed0b3a 100755
---- scripts/relocate_sdk.py
-+++ scripts/relocate_sdk.py
-@@ -168,10 +168,12 @@ def change_dl_sysdirs():
-                     new_path = old_prefix.sub(new_prefix, path)
-                     # pad with zeros
-                     new_path += b("\0") * (4096 - len(new_path))
--                    #print "Changing %s to %s at %s" % (str(path), str(new_path), str(offset))
-+                    #print("Changing %s to %s at %s" % (str(path), str(new_path), str(offset)))
-                     # write it back
-                     f.seek(sh_offset + offset)
--                    f.write(new_path)
-+                    # Make sure we write out at most 4096 bytes.
-+                    bytes_path = bytearray(new_path)
-+                    f.write(bytes_path[:4096])
-                     offset = offset + 4096
-     if sysdirs != "" and sysdirslen != "":
-         paths = sysdirs.split(b("\0"))

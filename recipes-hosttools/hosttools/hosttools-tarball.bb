@@ -20,11 +20,13 @@ TOOLCHAIN_HOST_TASK ?= "\
     nativesdk-make \
     nativesdk-zephyr-qemu \
     nativesdk-python \
+    nativesdk-python-ply \
     nativesdk-python3 \
     nativesdk-python3-misc \
     nativesdk-python3-textutils \
     nativesdk-python3-core \
     nativesdk-python3-modules \
+    nativesdk-python3-ply \
     nativesdk-openocd \
     "
 

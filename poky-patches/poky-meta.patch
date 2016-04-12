@@ -17,7 +17,7 @@ diff --git meta/classes/insane.bbclass meta/classes/insane.bbclass
 index 5c8629a..66f23d8 100644
 --- meta/classes/insane.bbclass
 +++ meta/classes/insane.bbclass
-@@ -62,9 +62,11 @@ def package_qa_get_machine_dict():
+@@ -62,9 +62,12 @@ def package_qa_get_machine_dict():
                          "arm" :       (40,     0,    0,          True,          32),
                        },
              "elf" : {
@@ -26,6 +26,7 @@ index 5c8629a..66f23d8 100644
                          "x86_64":     (62,     0,    0,          True,          64),
                          "epiphany":   (4643,   0,    0,          True,          32),
 +                        "mips":       ( 8,     0,    0,          False,         32),
++                        "nios2":      (113,    0,    0,          True,          32),
                        },
              "linux" : { 
                          "aarch64" :   (183,    0,    0,          True,          64),

@@ -28,6 +28,7 @@ TOOLCHAIN_HOST_TASK ?= "\
     nativesdk-python3-modules \
     nativesdk-python3-ply \
     nativesdk-openocd \
+    nativesdk-bossa \
     "
 
 TOOLCHAIN_OUTPUTNAME ?= "${DISTRO}-${SDKMACHINE}-hosttools-standalone-${DISTRO_VERSION}"

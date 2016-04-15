@@ -33,7 +33,10 @@ TUNE_CCARGS_mips := "-nostdlib"
 #NEWLIB_HOST_arm ?= "armv5-poky-eabi"
 TUNE_CCARGS_arm := "-nostdlib"
 
-# This will determine the name of the folder with libgcc as well.
+# NIOS2 specific settings
+TUNE_CCARGS_nios2 := " -nostdlib"
+
+# This will determine the name of the folder with libc as well.
 NEWLIB_HOST = "${TARGET_SYS}"
 
 CFLAGS += " -DMISSING_SYSCALL_NAMES "

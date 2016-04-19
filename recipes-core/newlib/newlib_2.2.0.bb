@@ -52,7 +52,7 @@ do_configure () {
     # everything is clean before we configure and build -- if we haven't previously
     # built this will fail and be ignored.
     make distclean || :
-    export CC_FOR_TARGET=$CC
+    export CC_FOR_TARGET="${CC}"
     ${S}/configure ${EXTRA_OECONF}
 }
 

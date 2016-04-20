@@ -23,8 +23,7 @@ LIC_FILES_CHKSUM = "\
     file://COPYING.RUNTIME;md5=fe60d87048567d4fe8c8a0ed2448bcc8 \
 "
 
-SRCREV="037cc276cdf8139375f0987ef02204ae3a8c4b84"
-
+SRCREV="eac2ef4517fbb3c01c6ec0546df51702ffe24c41"
 SRC_URI = "\
     git://github.com/foss-for-synopsys-dwc-arc-processors/gcc.git;branch=arc-4.8-dev \
     file://0008-missing-execinfo_h.patch \
@@ -110,6 +109,8 @@ EXTRA_OECONF_INTERMEDIATE = "\
 "
 
 EXTRA_OECONF_append_libc-uclibc = " --disable-decimal-float "
+
+EXTRA_OECONF_append_arc = ' --with-pkgversion="ARCompact/ARCv2 ISA elf32 toolchain ${SRCREV}"'
 
 EXTRA_OECONF_PATHS = "\ 
     --with-gxx-include-dir=${STAGING_DIR_TARGET}${target_includedir}/c++/${BINV} \ 

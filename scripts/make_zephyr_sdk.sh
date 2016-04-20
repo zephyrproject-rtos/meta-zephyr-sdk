@@ -59,7 +59,7 @@ toolchain_name=${product_name}-${sdk_version}-i686-setup.run
 
 # Identify files present in toolchains folder
 
-function parse_toolchain_name()
+parse_toolchain_name()
 {
     local varname=$1
     local arch=$2

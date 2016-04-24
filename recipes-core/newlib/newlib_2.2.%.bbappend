@@ -1,6 +1,6 @@
 ########################################################################
 #
-# ARC specific 
+# ARC specific
 #
 ########################################################################
 LIC_FILES_CHKSUM_arc = "file://COPYING;md5=59530bdf33659b29e73d4adb9f9f6552 \
@@ -15,17 +15,16 @@ SRCREV = "d29df8eea94deda85a42f3f6e4ef36dd0b93c883"
 SRC_URI_arc = "git://github.com/foss-for-synopsys-dwc-arc-processors/newlib.git;branch=arc-2.3"
 S_arc  = "${WORKDIR}/git"
 
-NEWLIB_HOST_arc ?= "arc-poky-elf"
 EXTRA_OECONF_append_arc = " --enable-multilib --disable-newlib-supplied-syscalls "
 TUNE_CCARGS_arc := " -nostdlib -mno-sdata "
 
-# ERROR: QA Issue: Architecture did not match (195 to 93) 
+# ERROR: QA Issue: Architecture did not match (195 to 93)
 INSANE_SKIP_${PN}_arc += " arch "
 INSANE_SKIP_${PN}_arc += " staticdev "
 
 ########################################################################
 #
-# IAMCU specific 
+# IAMCU specific
 #
 ########################################################################
 FILESEXTRAPATHS_prepend_iamcu := "${THISDIR}/${PN}:"
@@ -36,7 +35,6 @@ S_iamcu = "${WORKDIR}/iamcu_newlib_220-01638bd"
 PATH_prepend_iamcu = "${STAGING_DIR_NATIVE}${bindir_native}/i586${TARGET_VENDOR}-${TARGET_OS}:"
 
 # IAMCU specific settings
-NEWLIB_HOST_iamcu ?= "i586-default-elfiamcu"
 TUNE_CCARGS_iamcu := " -nostdlib -miamcu -m32"
 
 EXTRA_OECONF_append_iamcu = " \
@@ -49,7 +47,7 @@ EXTRA_OECONF_append_iamcu = " \
 
 ########################################################################
 #
-# Common 
+# Common
 #
 ########################################################################
 #INHIBIT_PACKAGE_DEBUG_SPLIT = "1"

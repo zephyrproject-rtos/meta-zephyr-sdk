@@ -101,6 +101,40 @@ do_cleanup()
 	fi
 }
 
+# Various newlib libraries were moved into a different folder,
+# a place where gcc can find them via --sysroot.
+# This also simplifies the SDK tree somewhat.
+# In order not to break any existing Makefiles which still expect
+# the old location of the libraries, we set up symlinks that point
+# to the new locations.
+
+do_legacy_symlinks()
+{
+    if [ -d $target_sdk_dir/sysroots/iamcu-poky-elfiamcu/usr ]; then
+        cd $target_sdk_dir/sysroots/iamcu-poky-elfiamcu/usr
+        ln -snr . i586-default-elfiamcu
+    fi
+
+    if [ -d $target_sdk_dir/sysroots/i586-poky-elf/usr ]; then
+        cd $target_sdk_dir/sysroots/i586-poky-elf/usr
+        ln -snr . i586-poky-elf
+    fi
+
+    if [ -d $target_sdk_dir/sysroots/armv5-poky-eabi/usr ]; then
+        cd $target_sdk_dir/sysroots/armv5-poky-eabi/usr
+         ln -snr . arm-poky-eabi
+    fi
+
+    if [ -d $target_sdk_dir/sysroots/arc-poky-elf/usr ]; then
+        cd $target_sdk_dir/sysroots/arc-poky-elf/usr
+        ln -snr . arc-poky-elf
+    fi
+
+    if [ -d $target_sdk_dir/sysroots/mips32r2-poky-elf/usr ]; then
+        cd $target_sdk_dir/sysroots/mips32r2-poky-elf/usr
+        ln -snr . mips-poky-elf
+    fi
+}
 # Read the input "y"
 read_confirm () {
     echo "The directory $target_sdk_dir/sysroots will be removed! "

@@ -152,6 +152,8 @@ fi
 echo "" >>$setup
 echo "do_cleanup"  >>$setup
 echo "" >>$setup
+echo "do_legacy_symlinks"  >>$setup
+echo "" >>$setup
 
 echo "echo \"Success installing SDK. SDK is ready to be used.\"" >>$setup
 chmod 777 $setup

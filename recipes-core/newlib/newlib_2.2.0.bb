@@ -20,17 +20,12 @@ DEPENDS_remove = "virtual/libc virtual/${TARGET_PREFIX}compilerlibs"
 PACKAGES = "${PN}"
 
 # x86 specific settings
-#NEWLIB_HOST_x86 ?= "i586-poky-elf"
 TUNE_CCARGS_x86 := " -nostdlib"
 
 # MIPS specific settings
-#NEWLIB_HOST_mips ?= "mips-poky-elf"
-#TUNE_CCARGS_mips := "-mabi=32 -march=mips32r2 -nostdlib"
 TUNE_CCARGS_mips := "-nostdlib"
 
 # ARM specific settings
-#TUNE_CCARGS_arm := "-mthumb -mcpu=cortex-m3 -march=armv7-m -nostdlib"
-#NEWLIB_HOST_arm ?= "armv5-poky-eabi"
 TUNE_CCARGS_arm := "-nostdlib"
 
 # NIOS2 specific settings
@@ -61,12 +56,19 @@ do_install () {
 
     # Delete standards.info, configure.info
     rm -rf ${D}/usr/share/
+    # Place the libraries where gcc can find them
+    # usr/${NEWLIB_HOST}/lib -> usr/lib
+    # usr/${NEWLIB_HOST}/include ->usr/include
+
+    mv -v ${D}/usr/${NEWLIB_HOST}/lib* ${D}/usr/lib
+    mv -v ${D}/usr/${NEWLIB_HOST}/include* ${D}/usr/include
+    rmdir ${D}/usr/${NEWLIB_HOST}
 }
 
 INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
 INHIBIT_PACKAGE_STRIP = "1"
 
-FILES_${PN} = "/usr/${NEWLIB_HOST}"
+FILES_${PN} = "/usr/lib /usr/include"
 
 INSANE_SKIP_${PN} += " staticdev"
 INSANE_SKIP_${PN}-dev += " staticdev"

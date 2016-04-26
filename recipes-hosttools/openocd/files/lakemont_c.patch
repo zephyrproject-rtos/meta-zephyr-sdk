@@ -1,0 +1,352 @@
+--- a/src/target/lakemont.c	2016-04-19 13:35:55.612775000 -0700
++++ b/src/target/lakemont.c	2016-04-19 13:52:25.797685327 -0700
+@@ -1,11 +1,12 @@
+ /*
+- * Copyright(c) 2013 Intel Corporation.
++ * Copyright(c) 2013-2015 Intel Corporation.
+  *
+  * Adrian Burns (adrian.burns@intel.com)
+  * Thomas Faust (thomas.faust@intel.com)
+  * Ivan De Cesaris (ivan.de.cesaris@intel.com)
+  * Julien Carreno (julien.carreno@intel.com)
+  * Jeffrey Maxwell (jeffrey.r.maxwell@intel.com)
++ * Jessica Gomez (jessica.gomez.hernandez@intel.com)
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of version 2 of the GNU General Public License as
+@@ -105,22 +106,23 @@
+ 	{ GS, "gs", 0x000000081D660000, NOT_PMREG, 32, REG_TYPE_INT32, "general", "org.gnu.gdb.i386.core" },
+ 
+ 	/* floating point unit registers - not accessible via JTAG - here to satisfy GDB */
+-	{ ST0, "st0", 0x0, NOT_AVAIL_REG, 32, REG_TYPE_INT32, "general", "org.gnu.gdb.i386.core" },
+-	{ ST1, "st1", 0x0, NOT_AVAIL_REG, 32, REG_TYPE_INT32, "general", "org.gnu.gdb.i386.core" },
+-	{ ST2, "st2", 0x0, NOT_AVAIL_REG, 32, REG_TYPE_INT32, "general", "org.gnu.gdb.i386.core" },
+-	{ ST3, "st3", 0x0, NOT_AVAIL_REG, 32, REG_TYPE_INT32, "general", "org.gnu.gdb.i386.core" },
+-	{ ST4, "st4", 0x0, NOT_AVAIL_REG, 32, REG_TYPE_INT32, "general", "org.gnu.gdb.i386.core" },
+-	{ ST5, "st5", 0x0, NOT_AVAIL_REG, 32, REG_TYPE_INT32, "general", "org.gnu.gdb.i386.core" },
+-	{ ST6, "st6", 0x0, NOT_AVAIL_REG, 32, REG_TYPE_INT32, "general", "org.gnu.gdb.i386.core" },
+-	{ ST7, "st7", 0x0, NOT_AVAIL_REG, 32, REG_TYPE_INT32, "general", "org.gnu.gdb.i386.core" },
++	{ ST0, "st0", 0x0, NOT_AVAIL_REG, 32, REG_TYPE_i387_EXT, "general", "org.gnu.gdb.i386.core" },
++	{ ST1, "st1", 0x0, NOT_AVAIL_REG, 32, REG_TYPE_i387_EXT, "general", "org.gnu.gdb.i386.core" },
++	{ ST2, "st2", 0x0, NOT_AVAIL_REG, 32, REG_TYPE_i387_EXT, "general", "org.gnu.gdb.i386.core" },
++	{ ST3, "st3", 0x0, NOT_AVAIL_REG, 32, REG_TYPE_i387_EXT, "general", "org.gnu.gdb.i386.core" },
++	{ ST4, "st4", 0x0, NOT_AVAIL_REG, 32, REG_TYPE_i387_EXT, "general", "org.gnu.gdb.i386.core" },
++	{ ST5, "st5", 0x0, NOT_AVAIL_REG, 32, REG_TYPE_i387_EXT, "general", "org.gnu.gdb.i386.core" },
++	{ ST6, "st6", 0x0, NOT_AVAIL_REG, 32, REG_TYPE_i387_EXT, "general", "org.gnu.gdb.i386.core" },
++	{ ST7, "st7", 0x0, NOT_AVAIL_REG, 32, REG_TYPE_i387_EXT, "general", "org.gnu.gdb.i386.core" },
++
+ 	{ FCTRL, "fctrl", 0x0, NOT_AVAIL_REG, 32, REG_TYPE_INT32, "general", "org.gnu.gdb.i386.core" },
+ 	{ FSTAT, "fstat", 0x0, NOT_AVAIL_REG, 32, REG_TYPE_INT32, "general", "org.gnu.gdb.i386.core" },
+-	{ FTAG, "ftag", 0x0, NOT_AVAIL_REG, 32, REG_TYPE_INT32, "general", "org.gnu.gdb.i386.core" },
++	{ FTAG,  "ftag",  0x0, NOT_AVAIL_REG, 32, REG_TYPE_INT32, "general", "org.gnu.gdb.i386.core" },
+ 	{ FISEG, "fiseg", 0x0, NOT_AVAIL_REG, 32, REG_TYPE_INT32, "general", "org.gnu.gdb.i386.core" },
+ 	{ FIOFF, "fioff", 0x0, NOT_AVAIL_REG, 32, REG_TYPE_INT32, "general", "org.gnu.gdb.i386.core" },
+ 	{ FOSEG, "foseg", 0x0, NOT_AVAIL_REG, 32, REG_TYPE_INT32, "general", "org.gnu.gdb.i386.core" },
+ 	{ FOOFF, "fooff", 0x0, NOT_AVAIL_REG, 32, REG_TYPE_INT32, "general", "org.gnu.gdb.i386.core" },
+-	{ FOP, "fop", 0x0, NOT_AVAIL_REG, 32, REG_TYPE_INT32, "general", "org.gnu.gdb.i386.core" },
++	{ FOP,   "fop",   0x0, NOT_AVAIL_REG, 32, REG_TYPE_INT32, "general", "org.gnu.gdb.i386.core" },
+ 
+ 	/* control registers */
+ 	{ CR0, "cr0", 0x000000001D660000, 6, 32, REG_TYPE_INT32, "general", "org.gnu.gdb.i386.sys" },
+@@ -211,6 +213,10 @@
+ 	{ SRAM2PDR, "SRAM2PDR", 0x4CF0000000000000 },
+ 	{ PDR2SRAM, "PDR2SRAM", 0x0CF0000000000000 },
+ 	{ WBINVD, "WBINVD", 0x09090909090990F0 },
++	/* Model Specific Registers */
++	{ RDMSR, "RDMSR", 0x0909090909094CF0 },
++	{ WRMSR, "WRMSR", 0x0909090909090CF0 },
++	{ CPUID, "CPUID", 0x09090909090945F0 },
+ };
+ 
+ bool check_not_halted(const struct target *t)
+@@ -375,7 +381,7 @@
+ 	int num_regs = ARRAY_SIZE(regs);
+ 	struct reg_cache **cache_p = register_get_last_cache_p(&t->reg_cache);
+ 	struct reg_cache *cache = malloc(sizeof(struct reg_cache));
+-	struct reg *reg_list = calloc(num_regs, sizeof(struct reg));
++	struct reg *reg_list = malloc(sizeof(struct reg) * num_regs);
+ 	struct lakemont_core_reg *arch_info = malloc(sizeof(struct lakemont_core_reg) * num_regs);
+ 	struct reg_feature *feature;
+ 	int i;
+@@ -455,15 +461,21 @@
+ 	scan.out[0] = 1;
+ 	if (drscan(t, scan.out, scan.in, 1) != ERROR_OK)
+ 		return ERROR_FAIL;
+-	tapstatus = get_tapstatus(t);
+-	LOG_DEBUG("TS after PM enter = 0x%08" PRIx32, tapstatus);
+-	if ((tapstatus & TS_PM_BIT) && (!(tapstatus & TS_EN_PM_BIT)))
+-		return ERROR_OK;
+-	else {
+-		LOG_ERROR("%s PM enter error, tapstatus = 0x%08" PRIx32
+-				, __func__, tapstatus);
+-		return ERROR_FAIL;
+-	}
++
++	/* HACK */
++	int cnt = 5;
++	do {
++		tapstatus = get_tapstatus(t);
++		if (tapstatus & TS_PM_BIT)
++			return ERROR_OK;
++
++		LOG_DEBUG("%s Waiting for PM, TS = 0x%08" PRIx32,
++				__func__, tapstatus);
++		usleep(100000);
++		cnt--;
++	} while (cnt);
++	return ERROR_FAIL;
++	/* TODO: find a nicer way to wait until PM_BIT changes*/
+ }
+ 
+ static int exit_probemode(struct target *t)
+@@ -481,6 +493,7 @@
+ 	scan.out[0] = 0;
+ 	if (drscan(t, scan.out, scan.in, 1) != ERROR_OK)
+ 		return ERROR_FAIL;
++
+ 	return ERROR_OK;
+ }
+ 
+@@ -488,6 +501,7 @@
+ static int halt_prep(struct target *t)
+ {
+ 	struct x86_32_common *x86_32 = target_to_x86_32(t);
++
+ 	if (write_hw_reg(t, DSB, PM_DSB, 0) != ERROR_OK)
+ 		return ERROR_FAIL;
+ 	LOG_DEBUG("write %s 0x%08" PRIx32, regs[DSB].name, PM_DSB);
+@@ -497,6 +511,13 @@
+ 	if (write_hw_reg(t, DSAR, PM_DSAR, 0) != ERROR_OK)
+ 		return ERROR_FAIL;
+ 	LOG_DEBUG("write DSAR 0x%08" PRIx32, PM_DSAR);
++	if (write_hw_reg(t, CSB, PM_DSB, 0) != ERROR_OK)
++		return ERROR_FAIL;
++	LOG_DEBUG("write %s 0x%08" PRIx32, regs[CSB].name, PM_DSB);
++	if (write_hw_reg(t, CSL, PM_DSL, 0) != ERROR_OK)
++		return ERROR_FAIL;
++	LOG_DEBUG("write %s 0x%08" PRIx32, regs[CSL].name, PM_DSL);
++
+ 	if (write_hw_reg(t, DR7, PM_DR7, 0) != ERROR_OK)
+ 		return ERROR_FAIL;
+ 	LOG_DEBUG("write DR7 0x%08" PRIx32, PM_DR7);
+@@ -510,8 +531,7 @@
+ 	LOG_DEBUG("EFLAGS = 0x%08" PRIx32 ", VM86 = %d, IF = %d", eflags,
+ 			eflags & EFLAGS_VM86 ? 1 : 0,
+ 			eflags & EFLAGS_IF ? 1 : 0);
+-	if (eflags & EFLAGS_VM86
+-		|| eflags & EFLAGS_IF) {
++	if ((eflags & EFLAGS_VM86) || (eflags & EFLAGS_IF)) {
+ 		x86_32->pm_regs[I(EFLAGS)] = eflags & ~(EFLAGS_VM86 | EFLAGS_IF);
+ 		if (write_hw_reg(t, EFLAGS, x86_32->pm_regs[I(EFLAGS)], 0) != ERROR_OK)
+ 			return ERROR_FAIL;
+@@ -529,14 +549,20 @@
+ 		LOG_DEBUG("write CSAR_CPL to 0 0x%08" PRIx32, x86_32->pm_regs[I(CSAR)]);
+ 	}
+ 	if (ssar & SSAR_DPL) {
+-		x86_32->pm_regs[I(SSAR)] = ssar & ~CSAR_DPL;
++		x86_32->pm_regs[I(SSAR)] = ssar & ~SSAR_DPL;
+ 		if (write_hw_reg(t, SSAR, x86_32->pm_regs[I(SSAR)], 0) != ERROR_OK)
+ 			return ERROR_FAIL;
+ 		LOG_DEBUG("write SSAR_CPL to 0 0x%08" PRIx32, x86_32->pm_regs[I(SSAR)]);
+ 	}
+ 
+-	/* if cache's are enabled, disable and flush */
+-	if (!(cr0 & CR0_CD)) {
++	/* if cache's are enabled, disable and flush, depending on the LMT core version */
++	/* TODO: we never disable and flush for LMT3.5 and always do for LMT1, but to
++	 * be clean, on LMT3.5 and later we should check bit 20 of TAPSTATUS
++	 * (1 == don't flush the cache) and decide what action to take (see LDO 3.7.1.5).
++	 * We can update the code once we know if we ever need to support LMT2/3 or a
++	 * new LMT architecture pops up.
++	 */
++	if (!(x86_32->core_type == LMT3_5) && !(cr0 & CR0_CD)) {
+ 		LOG_DEBUG("caching enabled CR0 = 0x%08" PRIx32, cr0);
+ 		if (cr0 & CR0_PG) {
+ 			x86_32->pm_regs[I(CR0)] = cr0 & ~CR0_PG;
+@@ -562,6 +588,13 @@
+ 	t->state = TARGET_DEBUG_RUNNING;
+ 	if (enter_probemode(t) != ERROR_OK)
+ 		return ERROR_FAIL;
++
++	return lakemont_update_after_probemode_entry(t);
++}
++
++/* we need to expose the update to be able to complete the reset at SoC level */
++int lakemont_update_after_probemode_entry(struct target *t)
++{
+ 	if (save_context(t) != ERROR_OK)
+ 		return ERROR_FAIL;
+ 	if (halt_prep(t) != ERROR_OK)
+@@ -671,21 +704,19 @@
+ 	if (cache)
+ 		regval = buf_get_u32(x86_32->cache->reg_list[reg].value, 0, 32);
+ 	buf_set_u32(reg_buf, 0, 32, regval);
+-	LOG_DEBUG("reg=%s, op=0x%016" PRIx64 ", val=0x%08" PRIx32,
+-			x86_32->cache->reg_list[reg].name,
+-			arch_info->op,
+-			regval);
++	LOG_DEBUG("reg=%s, op=0x%016" PRIx64 ", val=0x%08" PRIx32 " cache=0x%08" PRIx8,
++			x86_32->cache->reg_list[reg].name, arch_info->op, regval, cache);
+ 
+-	scan.out[0] = RDWRPDR;
+ 	x86_32->flush = 0; /* dont flush scans till we have a batch */
+-	if (irscan(t, scan.out, NULL, LMT_IRLEN) != ERROR_OK)
+-		return ERROR_FAIL;
+-	if (drscan(t, reg_buf, scan.out, PDR_SIZE) != ERROR_OK)
+-		return ERROR_FAIL;
+ 	if (submit_reg_pir(t, reg) != ERROR_OK)
+ 		return ERROR_FAIL;
+ 	if (submit_instruction_pir(t, SRAMACCESS) != ERROR_OK)
+ 		return ERROR_FAIL;
++	scan.out[0] = RDWRPDR;
++	if (irscan(t, scan.out, NULL, LMT_IRLEN) != ERROR_OK)
++		return ERROR_FAIL;
++	if (drscan(t, reg_buf, scan.out, PDR_SIZE) != ERROR_OK)
++		return ERROR_FAIL;
+ 	x86_32->flush = 1;
+ 	if (submit_instruction_pir(t, PDR2SRAM) != ERROR_OK)
+ 		return ERROR_FAIL;
+@@ -746,16 +777,35 @@
+ 		return false;
+ }
+ 
++static bool io_bpts_supported(struct target *t)
++{
++	struct x86_32_common *x86_32 = target_to_x86_32(t);
++	if (x86_32->core_type == LMT3_5)
++		return true;
++	else
++		return false;
++}
++
+ static int transaction_status(struct target *t)
+ {
+-	uint32_t tapstatus = get_tapstatus(t);
+-	if ((TS_EN_PM_BIT | TS_PRDY_BIT) & tapstatus) {
+-		LOG_ERROR("%s transaction error tapstatus = 0x%08" PRIx32
+-				, __func__, tapstatus);
+-		return ERROR_FAIL;
+-	} else {
+-		return ERROR_OK;
+-	}
++	uint32_t tapstatus = 0;
++
++	/* HACK */
++	int cnt = 5;
++	do {
++		tapstatus = get_tapstatus(t);
++		if (!((TS_EN_PM_BIT | TS_PRDY_BIT) & tapstatus))
++			return ERROR_OK;
++
++		LOG_DEBUG("%s Waiting for PRDY & PM, TS = 0x%08" PRIx32,
++						 __func__, tapstatus);
++		usleep(100000);
++		cnt--;
++	} while (cnt);
++
++	return ERROR_FAIL;
++	/* TODO: find a nicer way to wait until PM_BIT & PRDY_BIT changes*/
++
+ }
+ 
+ static int submit_instruction(struct target *t, int num)
+@@ -783,6 +833,16 @@
+ {
+ 	LOG_DEBUG("%s op=0x%016" PRIx64, instructions[num].name,
+ 			instructions[num].op);
++
++	/*
++	 * TODO: switch off the CR0.PG bit
++	 * is not disabled by default here in order to make reads faster
++	 * but should be done before submitting an instruction
++	 * maybe recommended to do it in halt_prep()
++	 */
++	if (is_paging_enabled(t))
++		LOG_DEBUG("%s CR0.PG not disable: possible instruction fault", __func__);
++
+ 	int err = submit_pir(t, instructions[num].op);
+ 	if (err != ERROR_OK) {
+ 		LOG_ERROR("%s error submitting pir", __func__);
+@@ -798,6 +858,7 @@
+ static int submit_pir(struct target *t, uint64_t op)
+ {
+ 	struct x86_32_common *x86_32 = target_to_x86_32(t);
++	uint32_t tapstatus = 0;
+ 
+ 	uint8_t op_buf[8];
+ 	buf_set_u64(op_buf, 0, 64, op);
+@@ -813,7 +874,28 @@
+ 	if (irscan(t, scan.out, NULL, LMT_IRLEN) != ERROR_OK)
+ 		return ERROR_FAIL;
+ 	jtag_add_sleep(DELAY_SUBMITPIR);
++
++	/* HACK */
++	if (x86_32->flush) {
++		int cnt = 10;
++		do {
++			tapstatus = get_tapstatus(t);
++			if (!(tapstatus & TS_PIR_BIT))
++				return ERROR_OK;
++
++			LOG_DEBUG("%s Waiting for TS_PIR_BIT, TS = 0x%08" PRIx32,
++					__func__, tapstatus);
++			usleep(100);
++			cnt--;
++		} while (cnt);
++		LOG_ERROR("%s TS_PIR_BIT did not clear, TS = 0x%08" PRIx32,
++				__func__, tapstatus);
++		return ERROR_FAIL;
++		/* TODO: find a nicer way to wait until PM_BIT changes*/
++	}
++
+ 	return ERROR_OK;
++
+ }
+ 
+ int lakemont_init_target(struct command_context *cmd_ctx, struct target *t)
+@@ -831,6 +913,7 @@
+ 	x86_32->read_hw_reg = read_hw_reg;
+ 	x86_32->write_hw_reg = write_hw_reg;
+ 	x86_32->sw_bpts_supported = sw_bpts_supported;
++	x86_32->io_bpts_supported = io_bpts_supported;
+ 	x86_32->get_num_user_regs = get_num_user_regs;
+ 	x86_32->is_paging_enabled = is_paging_enabled;
+ 	x86_32->disable_paging = disable_paging;
+@@ -856,17 +939,23 @@
+ 		return ERROR_OK;
+ 	}
+ 
+-	if (t->state == TARGET_HALTED && (!(ts & TS_PM_BIT))) {
+-		LOG_INFO("target running for unknown reason");
++	if ((!(ts & TS_PM_BIT))) {
++		if (t->state == TARGET_HALTED) {
++			LOG_USER("target running for unknown reason");
++		} else if (t->state == TARGET_DEBUG_RUNNING) {
++			LOG_USER("Debug running tapstatus=0x%08" PRIx32, ts);
++		}
++		LOG_DEBUG("tapstatus=0x%08" PRIx32, ts);
+ 		t->state = TARGET_RUNNING;
+ 	}
+ 
+-	if (t->state == TARGET_RUNNING &&
+-		t->state != TARGET_DEBUG_RUNNING) {
+ 
+-		if ((ts & TS_PM_BIT) && (ts & TS_PMCR_BIT)) {
++	if (t->state == TARGET_RUNNING ||
++		t->state == TARGET_DEBUG_RUNNING) {
++
++		if (ts & TS_PM_BIT) {
+ 
+-			LOG_DEBUG("redirect to PM, tapstatus=0x%08" PRIx32, get_tapstatus(t));
++			LOG_USER("redirect to PM, tapstatus=0x%08" PRIx32, get_tapstatus(t));
+ 
+ 			t->state = TARGET_DEBUG_RUNNING;
+ 			if (save_context(t) != ERROR_OK)
+@@ -1013,6 +1102,7 @@
+ 			activehwbp = activehwbp->next;
+ 		if (activeswbp != NULL || activehwbp != NULL)
+ 			buf_set_u32(x86_32->cache->reg_list[PMCR].value, 0, 32, 1);
++
+ 		if (do_resume(t) != ERROR_OK)
+ 			return ERROR_FAIL;
+ 	} else {

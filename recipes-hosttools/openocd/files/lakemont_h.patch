@@ -1,0 +1,25 @@
+--- a/src/target/lakemont.h	2016-04-19 13:35:55.612775000 -0700
++++ b/src/target/lakemont.h	2016-04-19 13:56:49.618993547 -0700
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright(c) 2013 Intel Corporation.
++ * Copyright(c) 2013-2015 Intel Corporation.
+  *
+  * Adrian Burns (adrian.burns@intel.com)
+  * Thomas Faust (thomas.faust@intel.com)
+@@ -72,6 +72,7 @@
+ #define TS_PM_BIT		((uint32_t)0x00000004)
+ #define TS_PMCR_BIT		((uint32_t)0x00000008)
+ #define TS_SBP_BIT		((uint32_t)0x00000010)
++#define TS_PIR_BIT		((uint32_t)0x00000200)
+ 
+ struct lakemont_core_reg {
+ 	uint32_t num;
+@@ -91,6 +92,7 @@
+ 
+ int lakemont_init_target(struct command_context *cmd_ctx, struct target *t);
+ int lakemont_init_arch_info(struct target *t, struct x86_32_common *x86_32);
++int lakemont_update_after_probemode_entry(struct target *t);
+ int lakemont_poll(struct target *t);
+ int lakemont_arch_state(struct target *t);
+ int lakemont_halt(struct target *t);

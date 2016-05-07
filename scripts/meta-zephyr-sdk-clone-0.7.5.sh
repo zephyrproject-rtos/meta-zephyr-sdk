@@ -22,7 +22,7 @@ curdir=$(pwd)
 
 # Master build
 if [ ! -d "poky" ]; then
-  git clone git://git.yoctoproject.org/poky
+  git clone http://git.yoctoproject.org/git/poky
 else
   echo "Repo already cloned..."
 #  exit 1

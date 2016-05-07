@@ -17,7 +17,7 @@ INHIBIT_PACKAGE_STRIP = "1"
 
 S = "${WORKDIR}/qemu-${PV}"
 
-inherit autotools pkgconfig 
+inherit autotools pkgconfig
 
 # Standard options:
 #  --prefix=PREFIX          install in PREFIX [$prefix]
@@ -211,15 +211,14 @@ do_install_append() {
     # Remove additional files...
     rm -rf ${D}/${SDKPATHNATIVE}/usr/share/qemu/keymaps
     # keep only bios.bin and multiboot.bin
-    find  ${D}/${SDKPATHNATIVE}/usr/share/qemu ! -name 'bios.bin' ! -name 'multiboot.bin' -type f -exec rm -f {} +
+    find  ${D}/${SDKPATHNATIVE}/usr/share/qemu ! -name 'bios.bin' ! -name 'multiboot.bin' ! -name 'vgabios-cirrus.bin' -type f -exec rm -f {} +
 }
 
 FILES_${PN} = " \
    /opt/zephyr-sdk \
   "
 
-#INSANE_SKIP_${PN} = "arch"
 INSANE_SKIP_${PN} = "already-stripped"
-#INSANE_SKIP_${PN} = "already-stripped arch"
+
 
 

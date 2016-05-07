@@ -1,0 +1,405 @@
+From d089da2bad6bf7fdf78955e7587b74fb8474b91a Mon Sep 17 00:00:00 2001
+From: Ivan De Cesaris <ivan.de.cesaris@intel.com>
+Date: Tue, 12 Jan 2016 16:30:18 +0100
+Subject: [PATCH] quark: add Intel Quark mcu D2000 support
+
+Add support for the Intel Quark mcu D2000 using the new quark_d2xx
+target.
+
+Changes to the lakemont part are needed for the D2000 core and
+backwards compatible with the X1000 one.
+
+Change-Id: I6e1ef5a5d116344942f08e413965abd3945235fa
+Signed-off-by: Ivan De Cesaris <ivan.de.cesaris@intel.com>
+---
+
+diff --git a/src/target/Makefile.am b/src/target/Makefile.am
+index 9f47b1f..1f4cbba 100644
+--- a/src/target/Makefile.am
++++ b/src/target/Makefile.am
+@@ -129,6 +129,7 @@
+ 
+ INTEL_IA32_SRC = \
+ 	quark_x10xx.c \
++	quark_d20xx.c \
+ 	lakemont.c \
+ 	x86_32_common.c
+ 
+diff --git a/src/target/lakemont.c b/src/target/lakemont.c
+index 055d943..151f4ab 100644
+--- a/src/target/lakemont.c
++++ b/src/target/lakemont.c
+@@ -1,11 +1,12 @@
+ /*
+- * Copyright(c) 2013 Intel Corporation.
++ * Copyright(c) 2013-2016 Intel Corporation.
+  *
+  * Adrian Burns (adrian.burns@intel.com)
+  * Thomas Faust (thomas.faust@intel.com)
+  * Ivan De Cesaris (ivan.de.cesaris@intel.com)
+  * Julien Carreno (julien.carreno@intel.com)
+  * Jeffrey Maxwell (jeffrey.r.maxwell@intel.com)
++ * Jessica Gomez (jessica.gomez.hernandez@intel.com)
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License as published by
+@@ -498,6 +499,12 @@
+ 	if (write_hw_reg(t, DSAR, PM_DSAR, 0) != ERROR_OK)
+ 		return ERROR_FAIL;
+ 	LOG_DEBUG("write DSAR 0x%08" PRIx32, PM_DSAR);
++	if (write_hw_reg(t, CSB, PM_DSB, 0) != ERROR_OK)
++		return ERROR_FAIL;
++	LOG_DEBUG("write %s 0x%08" PRIx32, regs[CSB].name, PM_DSB);
++	if (write_hw_reg(t, CSL, PM_DSL, 0) != ERROR_OK)
++		return ERROR_FAIL;
++	LOG_DEBUG("write %s 0x%08" PRIx32, regs[CSL].name, PM_DSL);
+ 	if (write_hw_reg(t, DR7, PM_DR7, 0) != ERROR_OK)
+ 		return ERROR_FAIL;
+ 	LOG_DEBUG("write DR7 0x%08" PRIx32, PM_DR7);
+@@ -511,8 +518,7 @@
+ 	LOG_DEBUG("EFLAGS = 0x%08" PRIx32 ", VM86 = %d, IF = %d", eflags,
+ 			eflags & EFLAGS_VM86 ? 1 : 0,
+ 			eflags & EFLAGS_IF ? 1 : 0);
+-	if (eflags & EFLAGS_VM86
+-		|| eflags & EFLAGS_IF) {
++	if ((eflags & EFLAGS_VM86) || (eflags & EFLAGS_IF)) {
+ 		x86_32->pm_regs[I(EFLAGS)] = eflags & ~(EFLAGS_VM86 | EFLAGS_IF);
+ 		if (write_hw_reg(t, EFLAGS, x86_32->pm_regs[I(EFLAGS)], 0) != ERROR_OK)
+ 			return ERROR_FAIL;
+@@ -530,14 +536,14 @@
+ 		LOG_DEBUG("write CSAR_CPL to 0 0x%08" PRIx32, x86_32->pm_regs[I(CSAR)]);
+ 	}
+ 	if (ssar & SSAR_DPL) {
+-		x86_32->pm_regs[I(SSAR)] = ssar & ~CSAR_DPL;
++		x86_32->pm_regs[I(SSAR)] = ssar & ~SSAR_DPL;
+ 		if (write_hw_reg(t, SSAR, x86_32->pm_regs[I(SSAR)], 0) != ERROR_OK)
+ 			return ERROR_FAIL;
+ 		LOG_DEBUG("write SSAR_CPL to 0 0x%08" PRIx32, x86_32->pm_regs[I(SSAR)]);
+ 	}
+ 
+-	/* if cache's are enabled, disable and flush */
+-	if (!(cr0 & CR0_CD)) {
++	/* if cache's are enabled, disable and flush, depending on the core version */
++	if (!(x86_32->core_type == LMT3_5) && !(cr0 & CR0_CD)) {
+ 		LOG_DEBUG("caching enabled CR0 = 0x%08" PRIx32, cr0);
+ 		if (cr0 & CR0_PG) {
+ 			x86_32->pm_regs[I(CR0)] = cr0 & ~CR0_PG;
+@@ -563,6 +569,13 @@
+ 	t->state = TARGET_DEBUG_RUNNING;
+ 	if (enter_probemode(t) != ERROR_OK)
+ 		return ERROR_FAIL;
++
++	return lakemont_update_after_probemode_entry(t);
++}
++
++/* we need to expose the update to be able to complete the reset at SoC level */
++int lakemont_update_after_probemode_entry(struct target *t)
++{
+ 	if (save_context(t) != ERROR_OK)
+ 		return ERROR_FAIL;
+ 	if (halt_prep(t) != ERROR_OK)
+@@ -677,16 +690,16 @@
+ 			arch_info->op,
+ 			regval);
+ 
+-	scan.out[0] = RDWRPDR;
+ 	x86_32->flush = 0; /* dont flush scans till we have a batch */
+-	if (irscan(t, scan.out, NULL, LMT_IRLEN) != ERROR_OK)
+-		return ERROR_FAIL;
+-	if (drscan(t, reg_buf, scan.out, PDR_SIZE) != ERROR_OK)
+-		return ERROR_FAIL;
+ 	if (submit_reg_pir(t, reg) != ERROR_OK)
+ 		return ERROR_FAIL;
+ 	if (submit_instruction_pir(t, SRAMACCESS) != ERROR_OK)
+ 		return ERROR_FAIL;
++	scan.out[0] = RDWRPDR;
++	if (irscan(t, scan.out, NULL, LMT_IRLEN) != ERROR_OK)
++		return ERROR_FAIL;
++	if (drscan(t, reg_buf, scan.out, PDR_SIZE) != ERROR_OK)
++		return ERROR_FAIL;
+ 	x86_32->flush = 1;
+ 	if (submit_instruction_pir(t, PDR2SRAM) != ERROR_OK)
+ 		return ERROR_FAIL;
+diff --git a/src/target/lakemont.h b/src/target/lakemont.h
+index 30b34b3..1075ad3 100644
+--- a/src/target/lakemont.h
++++ b/src/target/lakemont.h
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright(c) 2013 Intel Corporation.
++ * Copyright(c) 2013-2016 Intel Corporation.
+  *
+  * Adrian Burns (adrian.burns@intel.com)
+  * Thomas Faust (thomas.faust@intel.com)
+@@ -101,5 +101,6 @@
+ 			uint32_t address, int handle_breakpoints);
+ int lakemont_reset_assert(struct target *t);
+ int lakemont_reset_deassert(struct target *t);
++int lakemont_update_after_probemode_entry(struct target *t);
+ 
+ #endif /* LAKEMONT_H */
+diff --git a/src/target/quark_d20xx.c b/src/target/quark_d20xx.c
+new file mode 100644
+index 0000000..f797214
+--- /dev/null
++++ b/src/target/quark_d20xx.c
+@@ -0,0 +1,112 @@
++/*
++ * Copyright(c) 2015-2016 Intel Corporation.
++ *
++ * Jessica Gomez (jessica.gomez.hernandez@intel.com)
++ * Ivan De Cesaris (ivan.de.cesaris@intel.com)
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * General Public License for more details.
++ *
++ * Contact Information:
++ * Intel Corporation
++ */
++
++/*
++ * @file
++ * Debugger for Intel Quark D20xx
++ * The CPU TAP (Lakemont TAP) is used for software debug and the CLTAP is
++ * used for SoC level operations.
++ *
++ * Reference document:
++ * Intel Quark microcontroller D2000 Debug Operations (web search for doc num 333241)
++ */
++
++#ifdef HAVE_CONFIG_H
++#include "config.h"
++#endif
++
++#include <helper/log.h>
++
++#include "target.h"
++#include "target_type.h"
++#include "breakpoints.h"
++#include "lakemont.h"
++#include "x86_32_common.h"
++
++int quark_d20xx_target_create(struct target *t, Jim_Interp *interp)
++{
++	struct x86_32_common *x86_32 = calloc(1, sizeof(struct x86_32_common));
++	if (x86_32 == NULL) {
++		LOG_ERROR("%s out of memory", __func__);
++		return ERROR_FAIL;
++	}
++	x86_32_common_init_arch_info(t, x86_32);
++	lakemont_init_arch_info(t, x86_32);
++	x86_32->core_type = LMT3_5;
++	return ERROR_OK;
++}
++
++int quark_d20xx_init_target(struct command_context *cmd_ctx, struct target *t)
++{
++	return lakemont_init_target(cmd_ctx, t);
++}
++
++static int quark_d20xx_reset_deassert(struct target *t)
++{
++	int retval;
++
++	/* Can't detect if a warm reset happened while halted but we can make the
++	 * openocd and target state consistent here if in probe mode already
++	 */
++	if (!check_not_halted(t)) {
++		retval = lakemont_update_after_probemode_entry(t);
++		if (retval != ERROR_OK) {
++			LOG_ERROR("%s core state update fail", __func__);
++			return retval;
++		}
++		/* resume target if reset mode is run */
++		if (!t->reset_halt) {
++			retval = lakemont_resume(t, 1, 0, 0, 0);
++			if (retval != ERROR_OK) {
++				LOG_ERROR("%s could not resume target", __func__);
++				return retval;
++			}
++		}
++	}
++
++	return ERROR_OK;
++}
++
++struct target_type quark_d20xx_target = {
++	.name = "quark_d20xx",
++	.target_create = quark_d20xx_target_create,
++	.init_target = quark_d20xx_init_target,
++	/* lakemont probemode specific code */
++	.poll = lakemont_poll,
++	.arch_state = lakemont_arch_state,
++	.halt = lakemont_halt,
++	.resume = lakemont_resume,
++	.step = lakemont_step,
++	.assert_reset = lakemont_reset_assert,
++	.deassert_reset = quark_d20xx_reset_deassert,
++	/* common x86 code */
++	.commands = x86_32_command_handlers,
++	.get_gdb_reg_list = x86_32_get_gdb_reg_list,
++	.read_memory = x86_32_common_read_memory,
++	.write_memory = x86_32_common_write_memory,
++	.add_breakpoint = x86_32_common_add_breakpoint,
++	.remove_breakpoint = x86_32_common_remove_breakpoint,
++	.add_watchpoint = x86_32_common_add_watchpoint,
++	.remove_watchpoint = x86_32_common_remove_watchpoint,
++	.virt2phys = x86_32_common_virt2phys,
++	.read_phys_memory = x86_32_common_read_phys_mem,
++	.write_phys_memory = x86_32_common_write_phys_mem,
++	.mmu = x86_32_common_mmu,
++};
+diff --git a/src/target/quark_x10xx.c b/src/target/quark_x10xx.c
+index 9a1ccb6..a3b8a26 100644
+--- a/src/target/quark_x10xx.c
++++ b/src/target/quark_x10xx.c
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright(c) 2013 Intel Corporation.
++ * Copyright(c) 2013-2016 Intel Corporation.
+  *
+  * Adrian Burns (adrian.burns@intel.com)
+  * Thomas Faust (thomas.faust@intel.com)
+@@ -61,6 +61,7 @@
+ 	}
+ 	x86_32_common_init_arch_info(t, x86_32);
+ 	lakemont_init_arch_info(t, x86_32);
++	x86_32->core_type = LMT1;
+ 	return ERROR_OK;
+ }
+ 
+diff --git a/src/target/target.c b/src/target/target.c
+index 598d7d5..6df8d8b 100644
+--- a/src/target/target.c
++++ b/src/target/target.c
+@@ -104,6 +104,7 @@
+ extern struct target_type nds32_v3m_target;
+ extern struct target_type or1k_target;
+ extern struct target_type quark_x10xx_target;
++extern struct target_type quark_d20xx_target;
+ 
+ static struct target_type *target_types[] = {
+ 	&arm7tdmi_target,
+@@ -133,6 +134,7 @@
+ 	&nds32_v3m_target,
+ 	&or1k_target,
+ 	&quark_x10xx_target,
++	&quark_d20xx_target,
+ 	NULL,
+ };
+ 
+diff --git a/src/target/x86_32_common.h b/src/target/x86_32_common.h
+index af57a5f..c9cb389 100644
+--- a/src/target/x86_32_common.h
++++ b/src/target/x86_32_common.h
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright(c) 2013 Intel Corporation.
++ * Copyright(c) 2013-2016 Intel Corporation.
+  *
+  * Adrian Burns (adrian.burns@intel.com)
+  * Thomas Faust (thomas.faust@intel.com)
+@@ -196,6 +196,11 @@
+ 	WBINVD,
+ };
+ 
++enum x86_core_type {
++	LMT1,
++	LMT3_5
++};
++
+ struct swbp_mem_patch {
+ 	uint8_t orig_byte;
+ 	uint32_t swbp_unique_id;
+@@ -209,6 +214,7 @@
+ struct x86_32_common {
+ 	uint32_t common_magic;
+ 	void *arch_info;
++	enum x86_core_type core_type;
+ 	struct reg_cache *cache;
+ 	struct jtag_tap *curr_tap;
+ 	uint32_t stored_pc;
+diff --git a/tcl/board/quark_d2000_refboard.cfg b/tcl/board/quark_d2000_refboard.cfg
+new file mode 100644
+index 0000000..d1388bb
+--- /dev/null
++++ b/tcl/board/quark_d2000_refboard.cfg
+@@ -0,0 +1,15 @@
++# Intel Quark microcontroller D2000 Reference Board (web search for doc num 333582)
++
++# the board has an onboard FTDI FT232H chip
++interface ftdi
++ftdi_vid_pid 0x0403 0x6014
++ftdi_channel 0
++
++ftdi_layout_init 0x0000 0x030b
++ftdi_layout_signal nTRST -data 0x0100 -noe 0x0100
++
++source [find target/quark_d20xx.cfg]
++
++adapter_khz 1000
++
++reset_config trst_only
+diff --git a/tcl/target/quark_d20xx.cfg b/tcl/target/quark_d20xx.cfg
+new file mode 100644
+index 0000000..419f9dc
+--- /dev/null
++++ b/tcl/target/quark_d20xx.cfg
+@@ -0,0 +1,50 @@
++if { [info exists CPUTAPID] } {
++   set _CPUTAPID $CPUTAPID
++} else {
++   set _CPUTAPID 0x38289013
++}
++
++jtag newtap quark_d20xx quark -irlen 8 -irmask 0xff -expected-id $_CPUTAPID -disable
++jtag newtap quark_d20xx cltap -irlen 8 -irmask 0xff -expected-id 0x0e786013 -enable
++
++proc quark_d20xx_tapenable {} {
++	echo "enabling quark core tap"
++	irscan quark_d20xx.cltap 0x11
++	drscan quark_d20xx.cltap 12 1
++	runtest 10
++}
++
++proc quark_d20xx_tapdisable {} {
++	echo "disabling quark core tap"
++	irscan quark_d20xx.cltap 0x11
++	drscan quark_d20xx.cltap 12 0
++	runtest 10
++}
++
++proc quark_d20xx_setup {} {
++	jtag tapenable quark_d20xx.quark
++}
++
++jtag configure quark_d20xx.quark -event tap-enable \
++   "quark_d20xx_tapenable"
++
++jtag configure quark_d20xx.quark -event tap-disable \
++   "quark_d20xx_tapdisable"
++
++target create quark_d20xx.quark quark_d20xx -endian little -chain-position quark_d20xx.quark
++
++quark_d20xx.quark configure -event gdb-attach { halt }
++
++quark_d20xx.quark configure -event reset-start {
++	# need to halt the target to write to memory
++	if {[quark_d20xx.quark curstate] ne "halted"} { halt }
++	# set resetbreak via the core tap
++	irscan quark_d20xx.quark 0x35 ; drscan quark_d20xx.quark 1 0x1
++	# trigger a warm reset
++	mww 0xb0800570 0x2
++	# clear resetbreak
++	irscan quark_d20xx.quark 0x35 ; drscan quark_d20xx.quark 1 0x0
++}
++
++jtag configure quark_d20xx.quark -event setup \
++   "quark_d20xx_setup"

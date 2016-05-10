@@ -1,7 +1,7 @@
 
 LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=b234ee4d69f5fce4486a80fdaf4a4263"
-DEPENDS = "libusb-compat"
+DEPENDS = "libusb-compat hidapi-libusb"
 RDEPENDS_${PN} = "libusb1"
 
 # The various arc files are based on the commit e781e73a39bc5c845b73dc96b751d867278a7583
@@ -48,7 +48,7 @@ inherit pkgconfig autotools gettext
 
 BBCLASSEXTEND += "nativesdk"
 
-EXTRA_OECONF = "--enable-ftdi --disable-doxygen-html "
+EXTRA_OECONF = "--enable-ftdi --enable-cmsis-dap --enable-jlink --enable-stlink --disable-doxygen-html "
 
 do_configure() {
     cp ${WORKDIR}/arc32.* ${S}/src/target

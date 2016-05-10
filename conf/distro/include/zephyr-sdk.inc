@@ -1,6 +1,7 @@
 SANITY_TESTED_DISTROS = " \
             Ubuntu-14.04 \n \
             Ubuntu-15.04 \n \
+            Fedora-23 \n \
             "
 
 DISTRO = "zephyr-sdk"

@@ -1,5 +1,4 @@
-DESCRIPTION = "SDK type target for building a standalone tarball containing various host SDK packages for TM. The \
-               tarball can be used to run bitbake builds on systems which don't meet the usual version requirements."
+DESCRIPTION = "Standalone tarball containing various host SDK packages for Zephyr development."
 SUMMARY = "Standalone tarball for running Zephyr SDK builds on all systems"
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://${COREBASE}/LICENSE;md5=4d92cd373abda3937c2bc47fbc49d690 \
@@ -19,6 +18,7 @@ TOOLCHAIN_HOST_TASK ?= "\
     nativesdk-libstdc++-dev \
     nativesdk-make \
     nativesdk-zephyr-qemu \
+    nativesdk-hidapi-libusb \
     nativesdk-python \
     nativesdk-python-ply \
     nativesdk-python3 \
@@ -35,8 +35,6 @@ TOOLCHAIN_HOST_TASK ?= "\
 TOOLCHAIN_OUTPUTNAME ?= "${DISTRO}-${SDKMACHINE}-hosttools-standalone-${DISTRO_VERSION}"
 
 RDEPENDS = "${TOOLCHAIN_HOST_TASK}"
-
-EXCLUDE_FROM_WORLD = "1"
 
 inherit meta
 inherit populate_sdk

@@ -26,7 +26,7 @@ proc arc_arc32_init_regs { } {
 	arc_v2_init_regs
 
 	[target current] configure \
-		-event examine-end "arc_em_examine_target [target current]"
+		-event examine-end "arc_arc32_examine_target [target current]"
 }
 
 # Scripts in "target" folder should call this function instead of direct

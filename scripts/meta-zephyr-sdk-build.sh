@@ -18,20 +18,33 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #
 
+META_ZEPHYR_SDK_SOURCE=${SDK_SOURCE:-"meta-zephyr-sdk"}
+META_POKY_SOURCE=${POKY_SOURCE:-"poky"}
+META_ZEPHYR_SDK_SOURCE=$(readlink -f $META_ZEPHYR_SDK_SOURCE)
+META_POKY_SOURCE=$(readlink -f $META_POKY_SOURCE)
 
-curdir=$(pwd)
-mkdir -p downloads
-export DL_DIR=$curdir/downloads
+TOOLCHAINS="${META_ZEPHYR_SDK_SOURCE}/scripts/toolchains"
+META_DOWNLOADS=${META_DOWNLOADS:-"$META_POKY_SOURCE/downloads"}
 
-TOOLCHAINS=$curdir/poky/meta-zephyr-sdk/scripts/toolchains
+if [ ! -d $META_ZEPHYR_SDK_SOURCE ] ; then
+	echo "ERROR: could not find $META_ZEPHYR_SDK_SOURCE"
+	exit 1
+fi
+
+if [ ! -d $META_POKY_SOURCE ] ; then
+	echo "ERROR: could not find $META_POKY_SOURCE"
+	exit 1
+fi
+
+if [ ! -d $META_DOWNLOADS ] ; then
+	mkdir -p $META_DOWNLOADS
+fi
+export DL_DIR=$META_DOWNLOADS
 
 if [ ! -d $TOOLCHAINS ] ; then
 	mkdir -p $TOOLCHAINS
 fi
-
 rm -rf $TOOLCHAINS/*
-
-cd poky
 
 # setconf_var, i.e. "MACHINE","qemuarm",$localconf
 setconf_var()
@@ -51,7 +64,7 @@ echo "########################################################################"
 
 newbuild()
 {
-	cd $curdir/poky
+	cd $META_POKY_SOURCE
 	source oe-init-build-env $1
 
 	# Create bblayers.conf
@@ -64,19 +77,19 @@ newbuild()
 	echo "BBPATH = \"\${TOPDIR}\"" >> $bblayers
 	echo "BBFILES ?= \"\"" >> $bblayers
 	echo "BBLAYERS ?= \" \\" >> $bblayers
-	echo "  $curdir/poky/meta \\" >> $bblayers
-	echo "  $curdir/poky/meta-yocto \\" >> $bblayers
-	echo "  $curdir/poky/meta-yocto-bsp \\" >> $bblayers
-	echo "  $curdir/poky/meta-zephyr-sdk \\" >> $bblayers
+	echo "  $META_POKY_SOURCE/meta \\" >> $bblayers
+	echo "  $META_POKY_SOURCE/meta-yocto \\" >> $bblayers
+	echo "  $META_POKY_SOURCE/meta-yocto-bsp \\" >> $bblayers
+	echo "  $META_ZEPHYR_SDK_SOURCE \\" >> $bblayers
 	echo "  \" " >> $bblayers
 	echo "BBLAYERS_NON_REMOVABLE ?= \" \\" >> $bblayers
-	echo "  $curdir/poky/meta \\" >> $bblayers
-	echo "  $curdir/poky/meta-yocto \\" >> $bblayers
+	echo "  $META_POKY_SOURCE/meta \\" >> $bblayers
+	echo "  $META_POKY_SOURCE/meta-yocto \\" >> $bblayers
 	echo "  \" " >> $bblayers
 
 	# Common values for all builds
 	localconf=conf/local.conf
-	setconf_var "DL_DIR" "$curdir/downloads" $localconf
+	setconf_var "DL_DIR" "$META_DOWNLOADS" $localconf
 	setconf_var "SDKMACHINE" "i686" $localconf
 	setconf_var "DISTRO" "zephyr-sdk" $localconf
 }
@@ -182,9 +195,10 @@ header "Building IAMCU toolchain...done"
 
 # Pack it together ...
 
-cd $curdir/poky/meta-zephyr-sdk/scripts
+cd $META_ZEPHYR_SDK_SOURCE/scripts
 header "Creating SDK..."
 ./make_zephyr_sdk.sh
-[ $? -ne 0 ] && echo "Error(s) encountered during SDK creation." && exit 1
-
-
+if [ $? -ne 0 ] ; then
+	echo "Error(s) encountered during SDK creation."
+	exit 1
+fi

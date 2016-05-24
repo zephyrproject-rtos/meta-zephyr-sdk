@@ -18,36 +18,29 @@
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #
 
-curdir=$(pwd)
+POKY_KNOWN_COMMIT=${POKY_COMMIT:-"ae57ea03c6a41f2e3b61e0c157e32ca7df7b3c4b"}
+META_ZEPHYR_SDK_SOURCE=${SDK_SOURCE:-"meta-zephyr-sdk"}
+META_POKY_SOURCE=${POKY_SOURCE:-"poky"}
+META_ZEPHYR_SDK_SOURCE=$(readlink -f $META_ZEPHYR_SDK_SOURCE)
+META_POKY_SOURCE=$(readlink -f $META_POKY_SOURCE)
 
-# Master build
-if [ ! -d "poky" ]; then
-  git clone http://git.yoctoproject.org/git/poky
-else
-  echo "Repo already cloned..."
-#  exit 1
+if [ ! -d $META_ZEPHYR_SDK_SOURCE ] ; then
+	echo "ERROR: could not find $META_ZEPHYR_SDK_SOURCE"
+	exit 1
+fi
+
+if [ ! -d $META_POKY_SOURCE ] ; then
+	git clone http://git.yoctoproject.org/git/poky
+	META_POKY_SOURCE=$(readlink -f "poky")
 fi
 
 # Checkout the commit known to build...
-cd poky
-# Security fixes
-git checkout ae57ea03c6a41f2e3b61e0c157e32ca7df7b3c4b
+cd $META_POKY_SOURCE
+git checkout $POKY_KNOWN_COMMIT
 
-if [ ! -d "meta-zephyr-sdk" ]; then
-  git clone https://gerrit.zephyrproject.org/r/p/meta-zephyr-sdk.git
-  cd meta-zephyr-sdk
-  git checkout tags/0.7.5
-  cd ..
-  echo "Patching poky in: $PWD"
-  # patches created by git diff --no-prefix
-  for i in ./meta-zephyr-sdk/poky-patches/*.patch;
-    do
-      patch -s -p0 < $i;
-    done
-fi
-
-
-
-
-
-
+# Patch poky with meta-zephyr-sdk patches
+echo "Patching poky in: $PWD"
+for i in $META_ZEPHYR_SDK_SOURCE/poky-patches/*.patch;
+do
+    patch -s -p0 < $i;
+done

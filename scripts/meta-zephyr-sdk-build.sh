@@ -25,6 +25,7 @@ META_POKY_SOURCE=$(readlink -f $META_POKY_SOURCE)
 
 TOOLCHAINS="${META_ZEPHYR_SDK_SOURCE}/scripts/toolchains"
 META_DOWNLOADS=${META_DOWNLOADS:-"$META_POKY_SOURCE/downloads"}
+META_SSTATE=${SSTATE_LOCATION:-"$META_POKY_SOURCE/sstate"}
 
 if [ ! -d $META_ZEPHYR_SDK_SOURCE ] ; then
 	echo "ERROR: could not find $META_ZEPHYR_SDK_SOURCE"
@@ -89,6 +90,7 @@ newbuild()
 
 	# Common values for all builds
 	localconf=conf/local.conf
+	setconf_var "SSTATE_DIR" "$META_SSTATE" $localconf
 	setconf_var "DL_DIR" "$META_DOWNLOADS" $localconf
 	setconf_var "SDKMACHINE" "i686" $localconf
 	setconf_var "DISTRO" "zephyr-sdk" $localconf

@@ -1,0 +1,19 @@
+diff --git a/tcg/tcg-op.h b/tcg/tcg-op.h
+--- a/tcg/tcg-op.h	2016-05-25 12:57:56.461647901 -0700
++++ b/tcg/tcg-op.h	2016-05-25 12:58:49.265909743 -0700
+@@ -21,6 +21,9 @@
+  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+  * THE SOFTWARE.
+  */
++#ifndef TCG_OP_H
++#define TCG_OP_H
++
+ #include "tcg.h"
+ #include "exec/helper-proto.h"
+ #include "exec/helper-gen.h"
+@@ -2761,3 +2764,5 @@
+ # define tcg_gen_ext_i32_ptr(R, A) \
+     tcg_gen_ext_i32_i64(TCGV_PTR_TO_NAT(R), (A))
+ #endif /* UINTPTR_MAX == UINT32_MAX */
++
++#endif /* TCG_OP_H */

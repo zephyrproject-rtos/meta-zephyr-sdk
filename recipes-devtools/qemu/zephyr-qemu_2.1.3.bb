@@ -7,6 +7,21 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=441c28d2cf86e15a37fa47e15a72fbac \
 SRCREV = "c2b0926634cda378f634be62c616afbf03ca5890"
 SRC_URI = "http://wiki.qemu-project.org/download/qemu-${PV}.tar.bz2 \
           file://0001-armv7m-support-basepri-primask-interrupt-locking.patch \
+          file://configure.patch \
+          file://cpu-exec.patch \
+          file://arch-init.patch \
+          file://tcg-op.patch \
+          file://elf.patch \
+          file://hw.patch \
+          file://default-configs/nios2-softmmu.mak \
+          file://default-configs/nios2-linux-user.mak \
+          file://target-nios2/* \
+          file://hw/nios2/altera_10m50_zephyr.c \
+          file://hw/nios2/Makefile.objs \
+          file://hw/nios2/altera_10m50_device.c \
+          file://include/hw/nios2/altera.h \
+          file://include/hw/nios2/zephyr/linker.h \
+          file://include/hw/nios2/zephyr/system.h \
           "
 SRC_URI[md5sum] = "950706eda86044446c536514b44934fa"
 SRC_URI[sha256sum] = "9b68fd0e6f6c401939bd1c9c6ab7052d84962007bb02919623474e9269f60a40"
@@ -195,7 +210,7 @@ inherit autotools pkgconfig
 #--disable-blobs : BIOS needed for x86
 #--disable-fdt: Cannot use if supporting ARM
 
-QEMUS_BUILT = "arm-softmmu i386-softmmu mips-softmmu"
+QEMUS_BUILT = "arm-softmmu i386-softmmu mips-softmmu nios2-softmmu "
 QEMU_FLAGS = "--disable-docs  --disable-sdl --disable-debug-info  --disable-cap-ng \
   --disable-libnfs --disable-libusb --disable-libiscsi --disable-usb-redir --disable-linux-aio\
   --disable-guest-agent --disable-libssh2 --disable-vnc-png  --disable-seccomp \
@@ -204,14 +219,27 @@ QEMU_FLAGS = "--disable-docs  --disable-sdl --disable-debug-info  --disable-cap-
   "
 
 do_configure() {
+    install -d ${S}/target-nios2
+    install -d ${S}/include/hw/nios2/
+    cp ${WORKDIR}/target-nios2/* ${S}/target-nios2
+    cp -r ${WORKDIR}/hw/* ${S}/hw/
+    cp -r ${WORKDIR}/include/hw/nios2/* ${S}/include/hw/nios2/
+    cp ${WORKDIR}/default-configs/* ${S}/default-configs
     ${S}/configure ${QEMU_FLAGS} --target-list="${QEMUS_BUILT}" --prefix=${prefix} --sysconfdir=${sysconfdir} --libexecdir=${libexecdir} --localstatedir=${localstatedir}
 }
 
 do_install_append() {
     # Remove additional files...
-    rm -rf ${D}/${SDKPATHNATIVE}/usr/share/qemu/keymaps
-    # keep only bios.bin and multiboot.bin
-    find  ${D}/${SDKPATHNATIVE}/usr/share/qemu ! -name 'bios.bin' ! -name 'multiboot.bin' ! -name 'vgabios-cirrus.bin' -type f -exec rm -f {} +
+    # rm -rf ${D}/${SDKPATHNATIVE}/usr/share/qemu/keymaps
+    find  ${D}/${SDKPATHNATIVE}/usr/share/qemu/keymaps \
+         ! -name 'en-us'  -type f -exec rm -f {} +
+ 
+    # keep only bios.bin and multiboot.bin (vgabios-cirrus.bin not really needed)
+    find  ${D}/${SDKPATHNATIVE}/usr/share/qemu \
+         ! -name 'en-us' \
+         ! -name 'bios.bin' \
+         ! -name 'multiboot.bin' \
+         ! -name 'vgabios-cirrus.bin' -type f -exec rm -f {} +
 }
 
 FILES_${PN} = " \

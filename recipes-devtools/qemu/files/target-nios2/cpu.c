@@ -86,7 +86,6 @@ static void nios2_cpu_initfn(Object *obj)
     if (tcg_enabled() && !tcg_initialized) {
         tcg_initialized = true;
         nios2_translate_init(cpu);
-  //      cpu_set_debug_excp_handler(nios2_debug_excp_handler);
     }
 }
 
@@ -118,7 +117,8 @@ static void nios2_cpu_class_init(ObjectClass *oc, void *data)
     cc->do_unassigned_access = nios2_cpu_unassigned_access;
     cc->get_phys_page_debug = nios2_cpu_get_phys_page_debug;
 #endif
-    cc->gdb_num_core_regs = 32;
+    /* GDB expects only 32+16+1 registers (see target-nios2/gdbstub.c) */
+    cc->gdb_num_core_regs = 32 + 1 + 16;
 }
 
 static const TypeInfo nios2_cpu_type_info = {

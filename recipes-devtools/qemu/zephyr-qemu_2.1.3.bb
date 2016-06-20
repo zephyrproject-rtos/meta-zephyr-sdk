@@ -221,6 +221,7 @@ QEMU_FLAGS = "--disable-docs  --disable-sdl --disable-debug-info  --disable-cap-
 do_configure() {
     install -d ${S}/target-nios2
     install -d ${S}/include/hw/nios2/
+
     cp ${WORKDIR}/target-nios2/* ${S}/target-nios2
     cp -r ${WORKDIR}/hw/* ${S}/hw/
     cp -r ${WORKDIR}/include/hw/nios2/* ${S}/include/hw/nios2/
@@ -230,13 +231,9 @@ do_configure() {
 
 do_install_append() {
     # Remove additional files...
-    # rm -rf ${D}/${SDKPATHNATIVE}/usr/share/qemu/keymaps
-    find  ${D}/${SDKPATHNATIVE}/usr/share/qemu/keymaps \
-         ! -name 'en-us'  -type f -exec rm -f {} +
- 
-    # keep only bios.bin and multiboot.bin (vgabios-cirrus.bin not really needed)
+    # These are the only files we want to keep (vgabios-cirrus.bin not really needed):
     find  ${D}/${SDKPATHNATIVE}/usr/share/qemu \
-         ! -name 'en-us' \
+         ! -name 'en-us' ! -name 'common'  ! -name 'modifiers' \
          ! -name 'bios.bin' \
          ! -name 'multiboot.bin' \
          ! -name 'vgabios-cirrus.bin' -type f -exec rm -f {} +

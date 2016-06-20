@@ -59,6 +59,29 @@ static TCGv cpu_R[NIOS2_NUM_CORE_REGS];
 
 #include "exec/gen-icount.h"
 
+static inline void t_gen_raise_exception(uint32_t index)
+{
+    TCGv_i32 tmp = tcg_const_i32(index);
+    gen_helper_raise_exception(cpu_env, tmp);
+    tcg_temp_free_i32(tmp);
+}
+
+static void check_breakpoint(CPUNios2State *env, DisasContext *dc)
+{
+    CPUState *cs = CPU(nios2_env_get_cpu(env));
+    CPUBreakpoint *bp;
+
+    if (unlikely(!QTAILQ_EMPTY(&cs->breakpoints))) {
+        QTAILQ_FOREACH(bp, &cs->breakpoints, entry) {
+            if (bp->pc == dc->pc) {
+                tcg_gen_movi_tl(cpu_R[R_PC], dc->pc);
+                t_gen_raise_exception(EXCP_DEBUG);
+                dc->is_jmp = DISAS_UPDATE;
+             }
+        }
+    }
+}
+
 /* generate intermediate code for basic block 'tb'.  */
 static void gen_intermediate_code_internal(
     CPUNios2State *env, TranslationBlock *tb, int search_pc)
@@ -104,6 +127,8 @@ static void gen_intermediate_code_internal(
 
     gen_tb_start();
     do {
+        check_breakpoint(env, dc);
+
         /* Mark instruction start with associated PC */
         if (search_pc) {
             j = tcg_ctx.gen_opc_ptr  - tcg_ctx.gen_opc_buf;

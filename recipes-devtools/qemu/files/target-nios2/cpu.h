@@ -72,7 +72,7 @@ typedef struct CPUNios2State {
 
 #define ELF_MACHINE EM_ALTERA_NIOS2
 
-/* General purpose egister aliases */
+/* General purpose register aliases */
 #define R_ZERO   0
 #define R_AT     1
 #define R_RET0   2
@@ -113,6 +113,7 @@ typedef struct CPUNios2State {
 #define CR_IENABLE   (CR_BASE + 3)
 #define CR_IPENDING  (CR_BASE + 4)
 #define CR_CPUID     (CR_BASE + 5)
+#define CR_CTL6      (CR_BASE + 6) /* Reserved */
 #define CR_EXCEPTION (CR_BASE + 7)
 #define CR_PTEADDR   (CR_BASE + 8)
 #define   CR_PTEADDR_PTBASE_SHIFT 22
@@ -139,6 +140,7 @@ typedef struct CPUNios2State {
 #define   CR_TLBMISC_BAD       (1<<2)
 #define   CR_TLBMISC_PERM      (1<<1)
 #define   CR_TLBMISC_D         (1<<0)
+#define CR_ECCINJ    (CR_BASE + 11)  /*Available only when ECC is present */
 #define CR_BADADDR   (CR_BASE + 12)
 #define CR_CONFIG    (CR_BASE + 13)
 #define CR_MPUBASE   (CR_BASE + 14)

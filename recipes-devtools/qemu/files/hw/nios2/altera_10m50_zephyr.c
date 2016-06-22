@@ -104,6 +104,10 @@ static void altera_10m50_zephyr_init( MachineState *machine)
     vmstate_register_ram_global(ram);
     memory_region_add_subregion(sysmem, RAM_BASE, ram);
 
+    cpu->env.reset_addr = ALT_CPU_RESET_ADDR;
+    cpu->env.exception_addr = ALT_CPU_EXCEPTION_ADDR;
+    cpu->env.fast_tlb_miss_addr  = 0;
+
      /* Create irq lines */
     cpu_irq = qemu_allocate_irqs(cpu_irq_handler, cpu, 2);
     env->pic_state = altera_pic_init(cpu,*cpu_irq);

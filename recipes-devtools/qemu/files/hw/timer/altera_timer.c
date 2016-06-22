@@ -175,7 +175,7 @@ static const MemoryRegionOps timer_ops = {
     .endianness = DEVICE_LITTLE_ENDIAN,
     .valid = {
         .min_access_size = 2,
-        .max_access_size = 2
+        .max_access_size = 4
     }
 };
 

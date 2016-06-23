@@ -37,7 +37,7 @@
 # Edit as needed:
 version_major=0
 version_minor=8
-subversion_minor=0
+subversion_minor=1
 
 if [ "$1" != "" ] ; then
     product_name=$1

@@ -5,7 +5,7 @@ DEPENDS = "libusb-compat"
 RDEPENDS_${PN} = "libusb1"
 
 SRC_URI = " \
-	git://git.code.sf.net/p/openocd/code \
+    git://repo.or.cz/openocd.git \
 	file://ISSM_QuarkSE.patch \
 	file://zephyr-sdk.patch \
 	"

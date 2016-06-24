@@ -8,7 +8,7 @@ RDEPENDS_${PN} = "libusb1"
 # of https://github.com/foss-for-synopsys-dwc-arc-processors/openocd
 
 SRC_URI = " \
-	git://git.code.sf.net/p/openocd/code;tag=v0.9.0 \
+	git://repo.or.cz/openocd.git;tag=v0.9.0 \
 	file://ISSM_QuarkSE.patch \
 	file://d089da2b.patch \
 	file://Makefile_am.patch \

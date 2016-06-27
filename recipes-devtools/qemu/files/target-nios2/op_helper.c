@@ -2,6 +2,7 @@
  * Altera Nios II helper routines.
  *
  * Copyright (C) 2012 Chris Wulff <crwulff@gmail.com>
+ * Copyright (c) 2016 Intel Corporation.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -21,6 +22,7 @@
 #include "cpu.h"
 #include "exec/helper-proto.h"
 #include "exec/cpu_ldst.h"
+#include "hw/nios2/altera_iic.h"
 
 #if !defined(CONFIG_USER_ONLY)
 
@@ -88,6 +90,19 @@ uint32_t helper_divs(uint32_t a, uint32_t b)
 uint32_t helper_divu(uint32_t a, uint32_t b)
 {
     return a / b;
+}
+
+void helper_cr_ienable_write(CPUNios2State *env, uint32_t value)
+{
+    env->regs[CR_IENABLE] = value;
+    altera_iic_update_cr_ienable(env->pic_state);
+}
+
+
+void helper_cr_status_write(CPUNios2State *env, uint32_t value)
+{
+    env->regs[CR_STATUS] = value;
+    altera_iic_update_cr_status(env->pic_state);
 }
 
 #ifdef CALL_TRACING

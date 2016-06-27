@@ -2,7 +2,7 @@
  * QEMU Altera Internal Interrupt Controller.
  *
  * Copyright (c) 2012 Chris Wulff <crwulff@gmail.com>
- * Copyright (c) 2016 Intel Corporation
+ * Copyright (c) 2016 Intel Corporation.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -21,6 +21,7 @@
 
 #include "hw/sysbus.h"
 #include "cpu.h"
+#include "hw/nios2/altera_iic.h"
 
 #define DEBUG
 
@@ -37,7 +38,8 @@
 typedef struct AlteraIIC {
     SysBusDevice busdev;
     void        *cpu;
-    qemu_irq     parent_irq;
+    qemu_irq    parent_irq;
+    uint32_t    irqs;
 } AlteraIIC;
 
 /*
@@ -53,7 +55,6 @@ typedef struct AlteraIIC {
 
 static void update_irq(AlteraIIC *pv)
 {
-    uint32_t i;
     CPUNios2State *env = &((Nios2CPU*)(pv->cpu))->env;
 
     if ((env->regs[CR_STATUS] & CR_STATUS_PIE) == 0) {
@@ -61,30 +62,45 @@ static void update_irq(AlteraIIC *pv)
         return;
     }
 
-    for (i = 0; i < 32; i++) {
-        if (env->regs[CR_IPENDING] &
-            env->regs[CR_IENABLE] & (1 << i)) {
-            break;
-        }
-    }
-
-    if (i == 32) {
-        /* No pending & enabled IRQs, de-assert */
-        qemu_irq_lower(pv->parent_irq);
-    } else {
+    if (env->regs[CR_IPENDING]) {
         qemu_irq_raise(pv->parent_irq);
+    } else {
+        qemu_irq_lower(pv->parent_irq);
     }
 }
 
 static void irq_handler(void *opaque, int irq, int level)
 {
-    AlteraIIC *pv = opaque;
-    CPUNios2State *env = &((Nios2CPU*)(pv->cpu))->env;
+    AlteraIIC *s = opaque;
+    CPUNios2State *env = &((Nios2CPU*)(s->cpu))->env;
+    s->irqs &= ~(1 << irq);
+    s->irqs |= level << irq;
+    env->regs[CR_IPENDING] = env->regs[CR_IENABLE] & s->irqs;
+    update_irq(s);
+}
 
-    env->regs[CR_IPENDING] &= ~(1 << irq);
-    env->regs[CR_IPENDING] |= level << irq;
+void altera_iic_update_cr_status(DeviceState *d)
+{
+    AlteraIIC *s = ALTERA_IIC(d);
+    update_irq(s);
+}
 
-    update_irq(pv);
+/*
+ * ipending register
+ * A value of one in bit n means that the corresponding irq n input is
+ * asserted and enabled in the ienable register. Writing a value to the
+ * ipending register has no effect.
+
+ * The ipending register is present only when the internal interrupt
+ * controller is implemented.
+ */
+void altera_iic_update_cr_ienable(DeviceState *d)
+{
+    /* Modify the IPENDING register */
+    AlteraIIC *s = ALTERA_IIC(d);
+    CPUNios2State *env = &((Nios2CPU*)(s->cpu))->env;
+    env->regs[CR_IPENDING] = env->regs[CR_IENABLE] & s->irqs;
+    update_irq(s);
 }
 
 static int altera_iic_init(SysBusDevice *obj)

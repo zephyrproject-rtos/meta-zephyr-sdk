@@ -20,6 +20,7 @@ SRC_URI = "http://wiki.qemu-project.org/download/qemu-${PV}.tar.bz2 \
           file://hw/nios2/Makefile.objs \
           file://hw/nios2/altera_10m50_device.c \
           file://include/hw/nios2/altera.h \
+          file://include/hw/nios2/altera_iic.h \
           file://include/hw/nios2/zephyr/linker.h \
           file://include/hw/nios2/zephyr/system.h \
           "

@@ -3,6 +3,7 @@
  *  (Portions of this file that were originally from nios2sim-ng.)
  *
  * Copyright (C) 2012 Chris Wulff <crwulff@gmail.com>
+ * Copyright (c) 2016 Intel Corporation.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -1192,11 +1193,24 @@ static void wrctl(DisasContext *dc, uint32_t code)
             break;
         }
 
+       case CR_IPENDING: /* read only, ignore writes */
+            break;
+
+        case CR_IENABLE:
+            gen_helper_cr_ienable_write(dc->cpu_env, dc->cpu_R[instr->a]);
+            tcg_gen_movi_tl(dc->cpu_R[R_PC], dc->pc + 4);
+            dc->is_jmp = DISAS_UPDATE;
+            break;
+
+        case CR_STATUS:
+            gen_helper_cr_status_write(dc->cpu_env, dc->cpu_R[instr->a]);
+            tcg_gen_movi_tl(dc->cpu_R[R_PC], dc->pc + 4);
+            dc->is_jmp = DISAS_UPDATE;
+            break;
+
         default:
             tcg_gen_mov_tl(dc->cpu_R[instr->imm5 + 32], dc->cpu_R[instr->a]);
             break;
-
-        dc->is_jmp = DISAS_UPDATE;
         }
     }
 }

@@ -15,7 +15,7 @@ SRCREV = "d29df8eea94deda85a42f3f6e4ef36dd0b93c883"
 SRC_URI_arc = "git://github.com/foss-for-synopsys-dwc-arc-processors/newlib.git;branch=arc-2.3"
 S_arc  = "${WORKDIR}/git"
 
-EXTRA_OECONF_append_arc = " --enable-multilib --disable-newlib-supplied-syscalls "
+EXTRA_OECONF_append_arc = " --enable-multilib "
 TUNE_CCARGS_arc := " -nostdlib -mno-sdata "
 
 # ERROR: QA Issue: Architecture did not match (195 to 93)

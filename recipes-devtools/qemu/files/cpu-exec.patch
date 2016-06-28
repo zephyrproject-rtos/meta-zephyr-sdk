@@ -19,14 +19,13 @@ diff --git a/cpu-exec.c b/cpu-exec.c
                      if (interrupt_request & CPU_INTERRUPT_HALT) {
                          cpu->interrupt_request &= ~CPU_INTERRUPT_HALT;
                          cpu->halted = 1;
-@@ -607,6 +614,14 @@
+@@ -607,6 +614,13 @@
                          cc->do_interrupt(cpu);
                          next_tb = 0;
                      }
 +#elif defined(TARGET_NIOS2)
 +                    if ((interrupt_request & CPU_INTERRUPT_HARD)
 +                        && (env->regs[CR_STATUS] & CR_STATUS_PIE)) {
-+//printf(" %s !!!\n",__FUNCTION__);
 +                        cpu->exception_index = EXCP_IRQ;
 +                        cc->do_interrupt(cpu);
 +                        next_tb = 0;

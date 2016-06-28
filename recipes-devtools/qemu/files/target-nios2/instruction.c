@@ -20,8 +20,6 @@
  * <http://www.gnu.org/licenses/lgpl-2.1.html>
  */
 
-#include <stdio.h>
-
 #include "instruction.h"
 #include "exec/exec-all.h"
 #include "exec/helper-proto.h"
@@ -778,8 +776,6 @@ static void eret(DisasContext *dc, uint32_t code __attribute__((unused)))
     tcg_gen_mov_tl(dc->cpu_R[CR_STATUS], dc->cpu_R[CR_ESTATUS]);
     tcg_gen_mov_tl(dc->cpu_R[R_PC], dc->cpu_R[R_EA]);
 
-//    dc->is_jmp = DISAS_JUMP;
-//printf("JB: ERET %x\n",dc->cpu_R[CR_ESTATUS]);
     dc->is_jmp = DISAS_UPDATE;
 }
 

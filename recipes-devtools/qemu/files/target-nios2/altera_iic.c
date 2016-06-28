@@ -23,7 +23,7 @@
 #include "cpu.h"
 #include "hw/nios2/altera_iic.h"
 
-#define DEBUG
+//#define DEBUG
 
 #ifdef DEBUG
 # define DPRINTF(format, ...) printf(format , ## __VA_ARGS__)

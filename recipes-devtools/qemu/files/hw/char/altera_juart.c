@@ -181,7 +181,6 @@ static int juart_can_receive(void *opaque)
 static void juart_event(void *opaque, int event)
 {
 //    TODO: process events
-//    printf("JUART: %s event:%d\n",__FUNCTION__,event);
 }
 
 static void juart_reset(DeviceState *d)

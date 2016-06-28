@@ -19,13 +19,6 @@
  * <http://www.gnu.org/licenses/lgpl-2.1.html>
  */
 
-#include <stdarg.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <inttypes.h>
-#include <assert.h>
-
 #include "cpu.h"
 #include "disas/disas.h"
 #include "tcg-op.h"
@@ -217,13 +210,11 @@ static void gen_intermediate_code_internal(
 
 void gen_intermediate_code(CPUNios2State *env, TranslationBlock *tb)
 {
-//  printf("JB CPU %s\n",__FUNCTION__);
     gen_intermediate_code_internal(env, tb, 0);
 }
 
 void gen_intermediate_code_pc(CPUNios2State *env, TranslationBlock *tb)
 {
-//    printf("JB CPU %s\n",__FUNCTION__);
     gen_intermediate_code_internal(env, tb, 1);
 }
 
@@ -233,7 +224,7 @@ void nios2_cpu_dump_state(CPUState *cs, FILE *f, fprintf_function cpu_fprintf,
     Nios2CPU *cpu = NIOS2_CPU(cs);
     CPUNios2State *env = &cpu->env;
     int i;
-    printf("JB CPU %s\n",__FUNCTION__);
+
     if (!env || !f) {
         return;
     }
@@ -258,12 +249,6 @@ void nios2_cpu_dump_state(CPUState *cs, FILE *f, fprintf_function cpu_fprintf,
 void nios2_translate_init(Nios2CPU *cpu)
 {
     int i;
-    printf("JB CPU %s\n",__FUNCTION__);
-//    cpu = NIOS2_CPU(object_new(TYPE_NIOS2_CPU));
-//    object_property_set_bool(OBJECT(cpu), true, "realized", NULL);
-//    cpu->env.reset_addr = RESET_ADDRESS;
-//    cpu->env.exception_addr = EXCEPTION_ADDRESS;
-//    cpu->env.fast_tlb_miss_addr = FAST_TLB_MISS_ADDRESS;
 
     cpu_reset(CPU(cpu));
     qemu_init_vcpu(CPU(cpu));
@@ -280,6 +265,5 @@ void nios2_translate_init(Nios2CPU *cpu)
 void restore_state_to_opc(CPUNios2State *env, TranslationBlock *tb, int pc_pos)
 {
     env->regs[R_PC] = tcg_ctx.gen_opc_pc[pc_pos];
-//    printf("JB CPU %s R_PC: 0x%x pc_pos:0x%0x\n",__FUNCTION__,env->regs[R_PC], pc_pos);
 }
 

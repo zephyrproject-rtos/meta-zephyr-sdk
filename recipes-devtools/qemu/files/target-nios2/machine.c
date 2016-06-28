@@ -24,12 +24,10 @@
 void cpu_save(QEMUFile *f, void *opaque)
 {
     /* TODO */
-//    printf("CPU %s\n",__FUNCTION__);
 }
 
 int cpu_load(QEMUFile *f, void *opaque, int version_id)
 {
     /* TODO */
-//    printf("CPU %s\n",__FUNCTION__);
     return 0;
 }

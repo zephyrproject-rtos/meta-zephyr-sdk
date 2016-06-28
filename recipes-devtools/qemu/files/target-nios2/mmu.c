@@ -19,10 +19,6 @@
  * <http://www.gnu.org/licenses/lgpl-2.1.html>
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
-
 #include "config.h"
 #include "cpu.h"
 #include "exec/exec-all.h"

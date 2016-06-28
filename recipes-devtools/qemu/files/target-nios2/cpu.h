@@ -2,6 +2,7 @@
  * Altera Nios II virtual CPU header
  *
  * Copyright (c) 2012 Chris Wulff <crwulff@gmail.com>
+ * Copyright (c) 2016 Intel Corporation.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -57,8 +58,7 @@ typedef struct CPUNios2State {
 
     /* interrupt controller handle for callbacks */
     DeviceState *pic_state;
-    /* JTAG UART handle for callbacks */
-    DeviceState *juart_state;
+
 } CPUNios2State;
 
 #include "cpu-qom.h"

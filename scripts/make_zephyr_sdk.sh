@@ -56,6 +56,7 @@ fi
 setup=toolchains/setup.sh
 default_dir=/opt/${product_name}/
 toolchain_name=${product_name}-${sdk_version}-i686-setup.run
+version_dir=info-zephyr-sdk-${sdk_version}
 
 # Identify files present in toolchains folder
 
@@ -97,6 +98,8 @@ fi
 echo '#!/bin/bash' > $setup
 echo "DEFAULT_INSTALL_DIR=$default_dir" >> $setup
 echo "TOOLCHAIN_NAME=$toolchain_name" >> $setup
+echo "VERSION_DIR=$version_dir" >> $setup
+
 cat template_dir >>$setup
 
 if [ -n "$file_gcc_x86" ]; then

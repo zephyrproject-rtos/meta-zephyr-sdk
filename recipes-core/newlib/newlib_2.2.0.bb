@@ -40,6 +40,7 @@ CFLAGS += " -DMISSING_SYSCALL_NAMES "
 EXTRA_OECONF = " --enable-languages=c \
     --host=${NEWLIB_HOST} \
     --with-newlib --with-gnu-as --with-gnu-ld -v \
+    --disable-newlib-supplied-syscalls \
 "
 
 do_configure () {

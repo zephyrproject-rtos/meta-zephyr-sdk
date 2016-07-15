@@ -100,6 +100,8 @@ do_cleanup()
 	    rm environment-setup*
 	    mkdir $VERSION_DIR
 	    mv version-* $VERSION_DIR
+	    echo "$SDK_VERSION" > sdk_version
+	    chmod 0644 sdk_version
 	fi
 }
 
@@ -193,6 +195,7 @@ if [ -d $target_sdk_dir ]; then
 	    if [ "$confirm" = "y" -o "$confirm" = "Y" ]; then
 		        rm -rf $target_sdk_dir/sysroots/
 			rm -rf $target_sdk_dir/info-zephyr-sdk*/
+			rm -fr $target_sdk_dir/sdk_version
 		else
 		    # Abort the installation
 		    echo "SDK installation aborted!"

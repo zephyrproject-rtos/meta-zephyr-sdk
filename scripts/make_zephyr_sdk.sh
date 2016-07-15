@@ -99,6 +99,7 @@ echo '#!/bin/bash' > $setup
 echo "DEFAULT_INSTALL_DIR=$default_dir" >> $setup
 echo "TOOLCHAIN_NAME=$toolchain_name" >> $setup
 echo "VERSION_DIR=$version_dir" >> $setup
+echo "SDK_VERSION=${sdk_version}" >> $setup
 
 cat template_dir >>$setup
 

@@ -518,7 +518,7 @@ static void cmpgeui(DisasContext *dc, uint32_t code)
     I_TYPE(instr, code);
 
     tcg_gen_setcondi_tl(TCG_COND_GEU, dc->cpu_R[instr->b], dc->cpu_R[instr->a],
-                        (int32_t)((int16_t)instr->imm16));
+                        instr->imm16);
 }
 
 /* rB <- 0x0000 : Mem16[rA + @IMM16)] (bypassing cache) */
@@ -607,7 +607,7 @@ static void cmpltui(DisasContext *dc, uint32_t code)
     I_TYPE(instr, code);
 
     tcg_gen_setcondi_tl(TCG_COND_LTU, dc->cpu_R[instr->b], dc->cpu_R[instr->a],
-                        (int32_t)((int16_t)instr->imm16));
+                         instr->imm16);
 }
 
 /* */

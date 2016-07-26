@@ -11,8 +11,10 @@ LIC_FILES_CHKSUM_arc = "file://COPYING;md5=59530bdf33659b29e73d4adb9f9f6552 \
                     file://newlib/libc/posix/COPYRIGHT;md5=103468ff1982be840fdf4ee9f8b51bbf \
                     file://newlib/libc/sys/linux/linuxthreads/LICENSE;md5=73640207fbc79b198c7ffd4ad4d97aa0"
 
-SRCREV = "d29df8eea94deda85a42f3f6e4ef36dd0b93c883"
+#Tag arc-2016.03
+SRCREV = "e4da0f88abe8dd2a0b947bcf7cb8b3736ab94f33"
 SRC_URI_arc = "git://github.com/foss-for-synopsys-dwc-arc-processors/newlib.git;branch=arc-2.3"
+
 S_arc  = "${WORKDIR}/git"
 
 EXTRA_OECONF_append_arc = " --enable-multilib "

@@ -1,0 +1,51 @@
+From eeacdbc237aa23e06f94f1b016d57a3e7ae94e37 Mon Sep 17 00:00:00 2001
+From: Andrew Boie <andrew.p.boie@intel.com>
+Date: Thu, 11 Aug 2016 14:11:51 -0700
+Subject: [PATCH] nios2: dump SP, RA, PC upon bad function pointer deref
+
+We've found that QEMU aborts in qemu_ram_addr_from_host_nofail()
+if the CPU does a 'callr' instruction to a bad memory address, such
+as NULL. Since the emulator crashes this makes finding the cause
+difficult.
+
+Now before aborting we dump CPU state.
+
+Signed-off-by: Andrew Boie <andrew.p.boie@intel.com>
+---
+ cputlb.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/cputlb.c b/cputlb.c
+index afd3705..8233bd1 100644
+--- a/cputlb.c
++++ b/cputlb.c
+@@ -145,12 +145,16 @@ void tlb_reset_dirty_range(CPUTLBEntry *tlb_entry, uintptr_t start,
+     }
+ }
+ 
+-static inline ram_addr_t qemu_ram_addr_from_host_nofail(void *ptr)
++static inline ram_addr_t qemu_ram_addr_from_host_nofail(void *ptr,
++							CPUArchState *env1)
+ {
+     ram_addr_t ram_addr;
+ 
+     if (qemu_ram_addr_from_host(ptr, &ram_addr) == NULL) {
+         fprintf(stderr, "Bad ram pointer %p\n", ptr);
++#if defined(TARGET_NIOS2)
++	cpu_dump_state((CPUState *)nios2_env_get_cpu(env1), stderr, fprintf, 0);
++#endif
+         abort();
+     }
+     return ram_addr;
+@@ -329,7 +333,7 @@ tb_page_addr_t get_page_addr_code(CPUArchState *env1, target_ulong addr)
+         }
+     }
+     p = (void *)((uintptr_t)addr + env1->tlb_table[mmu_idx][page_index].addend);
+-    return qemu_ram_addr_from_host_nofail(p);
++    return qemu_ram_addr_from_host_nofail(p, env1);
+ }
+ 
+ #define MMUSUFFIX _mmu
+-- 
+2.7.4
+

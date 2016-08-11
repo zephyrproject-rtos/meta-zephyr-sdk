@@ -23,6 +23,7 @@ SRC_URI = "http://wiki.qemu-project.org/download/qemu-${PV}.tar.bz2 \
           file://include/hw/nios2/altera_iic.h \
           file://include/hw/nios2/zephyr/linker.h \
           file://include/hw/nios2/zephyr/system.h \
+          file://0001-nios2-dump-SP-RA-PC-upon-bad-function-pointer-deref.patch \
           "
 SRC_URI[md5sum] = "950706eda86044446c536514b44934fa"
 SRC_URI[sha256sum] = "9b68fd0e6f6c401939bd1c9c6ab7052d84962007bb02919623474e9269f60a40"

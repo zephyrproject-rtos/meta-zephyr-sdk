@@ -2363,7 +2363,7 @@ index 0000000..6dc0121
 +
 +			if (retval != ERROR_OK)
 +				return retval;
-+				if (verify != ARC32_SDBBP) {
++			if (verify != ARC32_SDBBP) {
 +				LOG_ERROR("Unable to set 32bit breakpoint at address %08" PRIx32
 +						" - check that memory is read/writable", breakpoint->address);
 +				return ERROR_OK;
@@ -5265,7 +5265,7 @@ index 0000000..f82c137
 +
 +/* XML feature names */
 +static const char * const general_group_name = "general";
-+static const char * const float_group_name = "float";
++//static const char * const float_group_name = "float";
 +static const char * const feature_core_basecase_name = "org.gnu.gdb.arc.core-basecase";
 +static const char * const feature_core_extension_name = "org.gnu.gdb.arc.core-extension";
 +static const char * const feature_core_pointers_name = "org.gnu.gdb.arc.core-pointers";
@@ -12029,10 +12029,10 @@ index 0000000..f12f935
 +} else {
 +    source [find interface/ftdi/digilent-hs1.cfg]
 +}
-+adapter_khz 10000
++adapter_khz 5000
 +
 +# Configure SoC
-+source [find target/snps_em_sk-lx45.cfg]
++source [find target/snps_em_sk_lx45.cfg]
 +
 +# Initialize
 +init
@@ -12817,8 +12817,8 @@ index 0000000..ea1850f
 +set _CHIPNAME arc-em
 +set _TARGETNAME $_CHIPNAME.cpu
 +
-+# EM SK IDENTITY is 0x200444b1
-+jtag newtap $_CHIPNAME cpu -irlen 4 -ircapture 0x1 -expected-id 0x200444b1
++# EM SK IDENTITY is 0x200044b1
++jtag newtap $_CHIPNAME cpu -irlen 4 -ircapture 0x1 -expected-id 0x200044b1
 +
 +set _coreid 0
 +set _dbgbase [expr 0x00000000 | ($_coreid << 13)]

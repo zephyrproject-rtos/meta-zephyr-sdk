@@ -1,2 +1,0 @@
-obj-y += altera_10m50_device.o
-obj-y += altera_10m50_zephyr.o

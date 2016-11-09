@@ -18,6 +18,7 @@ SRC_URI = "ftp://sourceware.org/pub/newlib/newlib-${PV}.tar.gz"
 SRC_URI[md5sum] = "37c07a65c6effdb4822fb6f83067f37e"
 SRC_URI[sha256sum] = "545b3d235e350d2c61491df8b9f775b1b972f191380db8f52ec0b1c829c52706"
 SRC_URI += "file://gettimeofday-header-fix.patch"
+SRC_URI += "file://assert-fiprintf.patch"
 
 S = "${WORKDIR}/newlib-${PV}"
 
@@ -47,6 +48,10 @@ EXTRA_OECONF = " --enable-languages=c \
     --host=${NEWLIB_HOST} \
     --with-newlib --with-gnu-as --with-gnu-ld -v \
     --disable-newlib-supplied-syscalls \
+    --disable-newlib-wide-orient \
+    --disable-newlib-fseek-optimization \
+    --enable-newlib-nano-formatted-io \
+    --enable-newlib-nano-malloc \
 "
 
 do_configure () {

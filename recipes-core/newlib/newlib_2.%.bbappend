@@ -12,9 +12,9 @@ LIC_FILES_CHKSUM_arc = "file://COPYING;md5=59530bdf33659b29e73d4adb9f9f6552 \
                     file://newlib/libc/sys/linux/linuxthreads/LICENSE;md5=73640207fbc79b198c7ffd4ad4d97aa0"
 
 #Tag arc-2016.03
-SRCREV = "e4da0f88abe8dd2a0b947bcf7cb8b3736ab94f33"
+SRCREV_arc = "e4da0f88abe8dd2a0b947bcf7cb8b3736ab94f33"
 SRC_URI_arc = "git://github.com/foss-for-synopsys-dwc-arc-processors/newlib.git;branch=arc-2.3"
-
+SRC_URI_arc += "file://assert-fiprintf.patch"
 S_arc  = "${WORKDIR}/git"
 
 EXTRA_OECONF_append_arc = " --enable-multilib "
@@ -41,10 +41,8 @@ TUNE_CCARGS_iamcu := " -nostdlib -miamcu -m32"
 
 EXTRA_OECONF_append_iamcu = " \
 	--disable-multilib --enable-newlib-global-atexit \
-	--disable-newlib-fvwrite-in-streamio --disable-newlib-wide-orient \
+	--disable-newlib-fvwrite-in-streamio \
 	--disable-newlib-unbuf-stream-opt --enable-lite-exit \
-	--enable-newlib-nano-formatted-io --enable-newlib-nano-malloc \
-	--disable-newlib-fseek-optimization \
 	"
 
 ########################################################################

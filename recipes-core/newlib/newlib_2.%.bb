@@ -17,6 +17,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=59530bdf33659b29e73d4adb9f9f6552 \
 SRC_URI = "ftp://sourceware.org/pub/newlib/newlib-${PV}.tar.gz"
 SRC_URI[md5sum] = "37c07a65c6effdb4822fb6f83067f37e"
 SRC_URI[sha256sum] = "545b3d235e350d2c61491df8b9f775b1b972f191380db8f52ec0b1c829c52706"
+SRC_URI += "file://gettimeofday-header-fix.patch"
 
 S = "${WORKDIR}/newlib-${PV}"
 

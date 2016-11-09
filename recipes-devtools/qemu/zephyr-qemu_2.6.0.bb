@@ -1,38 +1,21 @@
 
 DEPENDS = "glib-2.0 zlib pixman gnutls dtc"
-LICENSE = "GPLv2 & LGPLv2.1"
+LICENSE = "GPLv2"
+FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 LIC_FILES_CHKSUM = "file://COPYING;md5=441c28d2cf86e15a37fa47e15a72fbac \
                     file://COPYING.LIB;endline=24;md5=c04def7ae38850e7d3ef548588159913"
 
-SRCREV = "c2b0926634cda378f634be62c616afbf03ca5890"
-SRC_URI = "http://wiki.qemu-project.org/download/qemu-${PV}.tar.bz2 \
-          file://0001-armv7m-support-basepri-primask-interrupt-locking.patch \
-          file://configure.patch \
-          file://cpu-exec.patch \
-          file://arch-init.patch \
-          file://tcg-op.patch \
-          file://elf.patch \
-          file://hw.patch \
-          file://default-configs/nios2-softmmu.mak \
-          file://default-configs/nios2-linux-user.mak \
-          file://target-nios2/* \
-          file://hw/nios2/altera_10m50_zephyr.c \
-          file://hw/nios2/Makefile.objs \
-          file://hw/nios2/altera_10m50_device.c \
-          file://include/hw/nios2/altera.h \
-          file://include/hw/nios2/altera_iic.h \
-          file://include/hw/nios2/zephyr/linker.h \
-          file://include/hw/nios2/zephyr/system.h \
-          file://0001-nios2-dump-SP-RA-PC-upon-bad-function-pointer-deref.patch \
-          "
-SRC_URI[md5sum] = "950706eda86044446c536514b44934fa"
-SRC_URI[sha256sum] = "9b68fd0e6f6c401939bd1c9c6ab7052d84962007bb02919623474e9269f60a40"
+SRCREV = "bfc766d38e1fae5767d43845c15c79ac8fa6d6af"
+SRC_URI = "git://github.com/qemu/qemu.git;protocol=https \
+           file://nios2-add-support.patch \
+           file://arm_nvic_basepri.patch \
+"
 
 BBCLASSEXTEND = "native nativesdk"
 INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
 INHIBIT_PACKAGE_STRIP = "1"
 
-S = "${WORKDIR}/qemu-${PV}"
+S = "${WORKDIR}/git"
 
 inherit autotools pkgconfig
 
@@ -216,19 +199,13 @@ QEMUS_BUILT = "arm-softmmu i386-softmmu mips-softmmu nios2-softmmu "
 QEMU_FLAGS = "--disable-docs  --disable-sdl --disable-debug-info  --disable-cap-ng \
   --disable-libnfs --disable-libusb --disable-libiscsi --disable-usb-redir --disable-linux-aio\
   --disable-guest-agent --disable-libssh2 --disable-vnc-png  --disable-seccomp \
-  --disable-uuid --disable-tpm  --disable-numa --disable-quorum --disable-glusterfs \
-  --disable-virtfs --disable-xen --disable-curl --disable-vnc-tls --disable-attr --disable-curses\
+  --disable-uuid --disable-tpm  --disable-numa --disable-glusterfs \
+  --disable-virtfs --disable-xen --disable-curl --disable-attr --disable-curses\
   "
 
 do_configure() {
-    install -d ${S}/target-nios2
-    install -d ${S}/include/hw/nios2/
-
-    cp ${WORKDIR}/target-nios2/* ${S}/target-nios2
-    cp -r ${WORKDIR}/hw/* ${S}/hw/
-    cp -r ${WORKDIR}/include/hw/nios2/* ${S}/include/hw/nios2/
-    cp ${WORKDIR}/default-configs/* ${S}/default-configs
-    ${S}/configure ${QEMU_FLAGS} --target-list="${QEMUS_BUILT}" --prefix=${prefix} --sysconfdir=${sysconfdir} --libexecdir=${libexecdir} --localstatedir=${localstatedir}
+    ${S}/configure ${QEMU_FLAGS} --target-list="${QEMUS_BUILT}" --prefix=${prefix}  \
+        --sysconfdir=${sysconfdir} --libexecdir=${libexecdir} --localstatedir=${localstatedir}
 }
 
 do_install_append() {

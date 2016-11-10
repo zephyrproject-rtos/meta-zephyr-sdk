@@ -45,14 +45,3 @@ EXTRA_OECONF_append_iamcu = " \
 	--disable-newlib-unbuf-stream-opt --enable-lite-exit \
 	"
 
-########################################################################
-#
-# Common
-#
-########################################################################
-#INHIBIT_PACKAGE_DEBUG_SPLIT = "1"
-#INHIBIT_PACKAGE_STRIP = "1"
-
-# ERROR: QA Issue: non -staticdev package contains static .a library
-#INSANE_SKIP_${PN}-dev += " staticdev"
-#INSANE_SKIP_${PN}_iamcu += " staticdev"

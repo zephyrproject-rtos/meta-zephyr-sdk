@@ -72,9 +72,10 @@ do_install () {
     # usr/${NEWLIB_HOST}/lib -> usr/lib
     # usr/${NEWLIB_HOST}/include ->usr/include
 
-    mv -v ${D}/usr/${NEWLIB_HOST}/lib* ${D}/usr/lib
-    mv -v ${D}/usr/${NEWLIB_HOST}/include* ${D}/usr/include
-    rmdir ${D}/usr/${NEWLIB_HOST}
+    mv -v ${D}/usr/local/${NEWLIB_HOST}/lib* ${D}/usr/lib
+    mv -v ${D}/usr/local/${NEWLIB_HOST}/include* ${D}/usr/include
+    rm -rf ${D}/usr/local/${NEWLIB_HOST}
+    rm -rf ${D}/usr/local
 }
 
 INHIBIT_PACKAGE_DEBUG_SPLIT = "1"

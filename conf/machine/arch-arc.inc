@@ -3,11 +3,22 @@ DEFAULTTUNE ?= "arc"
 TUNE_ARCH = "arc"
 TUNE_PKGARCH = "arc"
 TUNE_FEATURES_tune-arc = "littleendian"
-#This does not work for multilib
-#TUNE_CCARGS = "-mARCv2EM -mav2em"
 TUNE_CCARGS = ""
 
-#TUNEVALID[bigendian] = "Big endian mode"
 TUNEVALID[littleendian] = "Little endian mode"
-#TUNE_CCARGS .= "${@bb.utils.contains("TUNE_FEATURES", "bigendian", " -EB", " -EL", d)}"
-#TUNE_ARCH = "${@bb.utils.contains("TUNE_FEATURES", "bigendian", "arceb", "arc", d)}"
+
+def siteinfo_setfunc(archinfo, osinfo, targetinfo, d): 
+	archinfo['arc'] = "endian-little bit-32 " 
+	osinfo['linux'] = "common-linux common-glibc" 
+	targetinfo['arc-linux'] = "arc-linux" 
+	return archinfo, osinfo, targetinfo 
+
+SITEINFO_EXTRA_DATAFUNCS = "siteinfo_setfunc" 
+
+def machdata_setfunc(machdata, d): 
+    machdata["elf"] = { "arc" : (195,    0,    0,  True,  32), }
+    return machdata 
+
+PACKAGEQA_EXTRA_MACHDEFFUNCS = "machdata_setfunc"
+
+

@@ -1,14 +1,17 @@
 
 LICENSE = "GPLv2"
 LIC_FILES_CHKSUM = "file://COPYING;md5=b234ee4d69f5fce4486a80fdaf4a4263"
-DEPENDS = "libusb-compat"
+DEPENDS = "libusb-compat hidapi-libusb"
 RDEPENDS_${PN} = "libusb1"
 
 SRC_URI = " \
     git://repo.or.cz/openocd.git \
 	file://ISSM_QuarkSE.patch \
 	file://zephyr-sdk.patch \
-	"
+	file://866774a6.patch \
+	file://aice_usb.patch \
+	file://at91sam3.patch \
+    "
 
 SRCREV = "94d64ccaebd3df17f5873c076fc08ca97088cb1e"
 S = "${WORKDIR}/git"
@@ -25,6 +28,10 @@ do_configure() {
     export GIT_PROXY_COMMAND=${GIT_PROXY_COMMAND}
     ./bootstrap
     oe_runconf ${EXTRA_OECONF}
+}
+
+do_compile() {
+    :
 }
 
 do_install() {

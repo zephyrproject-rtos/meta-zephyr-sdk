@@ -1,0 +1,46 @@
+From 866774a690095740e86035d5adc30aa1b6b4c58e Mon Sep 17 00:00:00 2001
+From: Aleksander Morgado <aleksander@aleksander.es>
+Date: Wed, 11 May 2016 09:58:47 +0200
+Subject: [PATCH] arm7: add missing braces around an if()
+
+Spotted by gcc:
+
+    arm7_9_common.c: In function ‘arm7_9_unset_breakpoint’:
+    arm7_9_common.c:353:4: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+        if (current_instr == arm7_9->thumb_bkpt)
+        ^~
+    arm7_9_common.c:356:5: note: ...this statement, but the latter is misleadingly indented as if it is guarded by the ‘if’
+         if (retval != ERROR_OK)
+         ^~
+
+The logic won't change once the braces have been added, as the new 'retval'
+check only makes sense within the if().
+
+Change-Id: I6a303e118f2150e5eb25c9268ad06de5d8a533b2
+Signed-off-by: Aleksander Morgado <aleksander@aleksander.es>
+Reviewed-on: http://openocd.zylin.com/3477
+Tested-by: jenkins
+Reviewed-by: Andreas Färber <afaerber@suse.de>
+Reviewed-by: Matthias Welwarsky <matthias@welwarsky.de>
+Reviewed-by: Freddie Chopin <freddie.chopin@gmail.com>
+---
+
+diff --git a/src/target/arm7_9_common.c b/src/target/arm7_9_common.c
+index 73e0a85..951aa54 100644
+--- a/src/target/arm7_9_common.c
++++ b/src/target/arm7_9_common.c
+@@ -350,12 +350,12 @@
+ 			if (retval != ERROR_OK)
+ 				return retval;
+ 			current_instr = target_buffer_get_u16(target, (uint8_t *)&current_instr);
+-			if (current_instr == arm7_9->thumb_bkpt)
++			if (current_instr == arm7_9->thumb_bkpt) {
+ 				retval = target_write_memory(target,
+ 						breakpoint->address, 2, 1, breakpoint->orig_instr);
+ 				if (retval != ERROR_OK)
+ 					return retval;
+-
++			}
+ 		}
+ 
+ 		if (--arm7_9->sw_breakpoint_count == 0) {

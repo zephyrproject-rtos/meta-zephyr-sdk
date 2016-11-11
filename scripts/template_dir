@@ -94,15 +94,15 @@ spinner()
 
 do_cleanup()
 {
+	cd $target_sdk_dir
 	if [ $post_install_cleanup = "1" ]; then
-	    cd $target_sdk_dir
-	    #rm site-config*
-	    rm environment-setup*
-	    install -d -m 0755 $VERSION_DIR
-	    mv version-* $VERSION_DIR
-	    echo "$SDK_VERSION" > sdk_version
-	    chmod 0644 sdk_version
+		#rm site-config*
+		rm environment-setup*
 	fi
+	install -d -m 0755 $VERSION_DIR
+	mv version-* $VERSION_DIR
+	echo "$SDK_VERSION" > sdk_version
+	chmod 0644 sdk_version
 }
 
 # Read the input "y"

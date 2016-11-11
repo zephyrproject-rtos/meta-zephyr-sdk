@@ -1,4 +1,4 @@
-require recipes-devtools-arc/gcc/gcc-4.8arc.inc
+require recipes-devtools-arc/gcc/gcc-6.x.arc.inc
 require recipes-devtools/gcc/gcc-cross.inc
 
 DEPENDS_remove_libc-baremetal := "virtual/${TARGET_PREFIX}libc-for-gcc"

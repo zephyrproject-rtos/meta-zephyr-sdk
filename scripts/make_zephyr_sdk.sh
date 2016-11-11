@@ -36,8 +36,8 @@
 
 # Edit as needed:
 version_major=0
-version_minor=8
-subversion_minor=2
+version_minor=9
+subversion_minor=0
 
 if [ "$1" != "" ] ; then
     product_name=$1
@@ -155,10 +155,6 @@ fi
 
 echo "" >>$setup
 echo "do_cleanup"  >>$setup
-echo "" >>$setup
-echo "do_legacy_symlinks"  >>$setup
-echo "" >>$setup
-echo "do_legacy_symlinks_arm"  >>$setup
 echo "" >>$setup
 
 echo "echo \"Success installing SDK. SDK is ready to be used.\"" >>$setup

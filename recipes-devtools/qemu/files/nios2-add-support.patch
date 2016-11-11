@@ -6651,7 +6651,7 @@ index 0000000..66fcd30
 +            paddr = lu.paddr + vaddr - lu.vaddr;
 +        } else {
 +            paddr = -1;
-+            qemu_log("cpu_get_phys_page debug MISS: %08llX\n", addr);
++            qemu_log("cpu_get_phys_page debug MISS: %08lX\n", addr);
 +        }
 +    } else {
 +        paddr = addr & TARGET_PAGE_MASK;

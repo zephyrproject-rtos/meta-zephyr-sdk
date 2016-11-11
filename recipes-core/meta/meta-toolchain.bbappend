@@ -14,7 +14,7 @@ create_sdk_files_append_zephyr-sdk() {
 	rm -rfv ${SDK_OUTPUT}/${SDKPATH}/sysroots/${MULTIMACH_TARGET_SYS}/run
 	rm -rfv ${SDK_OUTPUT}/${SDKPATH}/sysroots/${MULTIMACH_TARGET_SYS}/lib
 
-	rm -rfv ${SDK_OUTPUT}/${SDKPATH}/sysroots/${SDK_SYS}/usr/share
+	#rm -rfv ${SDK_OUTPUT}/${SDKPATH}/sysroots/${SDK_SYS}/usr/share
 	rm -rfv ${SDK_OUTPUT}/${SDKPATH}/sysroots/${SDK_SYS}/etc
 	rm -rfv ${SDK_OUTPUT}/${SDKPATH}/sysroots/${SDK_SYS}/var
 	rm -rfv ${SDK_OUTPUT}/${SDKPATH}/sysroots/${SDK_SYS}/sbin

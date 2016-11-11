@@ -105,68 +105,6 @@ do_cleanup()
 	fi
 }
 
-# Various newlib libraries were moved into a different folder,
-# a place where gcc can find them via --sysroot.
-# This also simplifies the SDK tree somewhat.
-# In order not to break any existing Makefiles which still expect
-# the old location of the libraries, we set up symlinks that point
-# to the new locations.
-
-do_legacy_symlinks()
-{
-    if [ -d $target_sdk_dir/sysroots/iamcu-poky-elfiamcu/usr ]; then
-        cd $target_sdk_dir/sysroots/iamcu-poky-elfiamcu/usr
-        ln -s "$PWD" i586-default-elfiamcu
-    fi
-
-    if [ -d $target_sdk_dir/sysroots/i586-poky-elf/usr ]; then
-        cd $target_sdk_dir/sysroots/i586-poky-elf/usr
-        ln -s "$PWD" i586-poky-elf
-    fi
-
-    if [ -d $target_sdk_dir/sysroots/armv5-poky-eabi/usr ]; then
-        cd $target_sdk_dir/sysroots/armv5-poky-eabi/usr
-         ln -s "$PWD" arm-poky-eabi
-    fi
-
-    if [ -d $target_sdk_dir/sysroots/arc-poky-elf/usr ]; then
-        cd $target_sdk_dir/sysroots/arc-poky-elf/usr
-        ln -s "$PWD" arc-poky-elf
-    fi
-
-    if [ -d $target_sdk_dir/sysroots/mips32r2-poky-elf/usr ]; then
-        cd $target_sdk_dir/sysroots/mips32r2-poky-elf/usr
-        ln -s "$PWD" mips-poky-elf
-    fi
-}
-
-# As of SDK 0.8.2 ARM multilibs were modified and hence changed folder names.
-# In order not to break any existing Zephyr Makefiles which still expect
-# the old location of the libraries, we set up symlinks that point
-# to the new locations.
-# In particular, we need to ensure thumb/thumb2 existst as it is referenced
-# directly from Zephyr's Makefile.toolchain.zephyr. If it does not, we point
-# "thumb/thumb2" to "armv7-m" (providing it exists).
-
-do_legacy_symlinks_arm()
-{
-    # libgcc
-    if [ ! -d $target_sdk_dir/sysroots/armv5-poky-eabi/usr/lib/arm-poky-eabi/5.2.0/thumb/thumb2 ]; then
-        if [ -d $target_sdk_dir/sysroots/armv5-poky-eabi/usr/lib/arm-poky-eabi/5.2.0/armv7-m ]; then
-            cd $target_sdk_dir/sysroots/armv5-poky-eabi/usr/lib/arm-poky-eabi/5.2.0/thumb
-            ln -s $target_sdk_dir/sysroots/armv5-poky-eabi/usr/lib/arm-poky-eabi/5.2.0/armv7-m thumb2
-        fi
-    fi
-
-    # newlib (libc, libm, ...)
-    if [ ! -d $target_sdk_dir/sysroots/armv5-poky-eabi/usr/lib/thumb/thumb2 ]; then
-        if [ -d $target_sdk_dir/sysroots/armv5-poky-eabi/usr/lib/armv7-m ]; then
-            cd $target_sdk_dir/sysroots/armv5-poky-eabi/usr/lib/thumb
-            ln -s $target_sdk_dir/sysroots/armv5-poky-eabi/usr/lib/armv7-m thumb2
-        fi
-    fi
-}
-
 # Read the input "y"
 read_confirm () {
     echo "The directory $target_sdk_dir/sysroots will be removed! "

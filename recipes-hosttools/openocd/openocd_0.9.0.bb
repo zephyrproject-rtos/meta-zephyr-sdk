@@ -40,6 +40,7 @@ SRC_URI = " \
 	file://v2.tcl \
 	file://arc32.tcl \
 	file://arcompact.tcl \
+	file://866774a6.patch \
 	"
 
 S = "${WORKDIR}/git"
@@ -60,6 +61,10 @@ do_configure() {
     export GIT_PROXY_COMMAND=${GIT_PROXY_COMMAND}
     ./bootstrap
     oe_runconf ${EXTRA_OECONF}
+}
+
+do_compile() {
+    :
 }
 
 do_install() {

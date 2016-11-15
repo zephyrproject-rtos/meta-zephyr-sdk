@@ -55,7 +55,7 @@ fi
 
 setup=toolchains/setup.sh
 default_dir=/opt/${product_name}/
-toolchain_name=${product_name}-${sdk_version}-i686-setup.run
+toolchain_name=${product_name}-${sdk_version}-setup.run
 version_dir=info-zephyr-sdk-${sdk_version}
 
 # Identify files present in toolchains folder

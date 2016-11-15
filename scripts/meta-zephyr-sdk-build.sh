@@ -83,16 +83,12 @@ newbuild()
 	echo "  $META_POKY_SOURCE/meta-yocto-bsp \\" >> $bblayers
 	echo "  $META_ZEPHYR_SDK_SOURCE \\" >> $bblayers
 	echo "  \" " >> $bblayers
-	echo "BBLAYERS_NON_REMOVABLE ?= \" \\" >> $bblayers
-	echo "  $META_POKY_SOURCE/meta \\" >> $bblayers
-	echo "  $META_POKY_SOURCE/meta-yocto \\" >> $bblayers
-	echo "  \" " >> $bblayers
 
 	# Common values for all builds
 	localconf=conf/local.conf
 	setconf_var "SSTATE_DIR" "$META_SSTATE" $localconf
 	setconf_var "DL_DIR" "$META_DOWNLOADS" $localconf
-	setconf_var "SDKMACHINE" "i686" $localconf
+	setconf_var "SDKMACHINE" "x86_64" $localconf
 	setconf_var "DISTRO" "zephyr-sdk" $localconf
 }
 

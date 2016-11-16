@@ -39,8 +39,10 @@ cd $META_POKY_SOURCE
 git checkout $POKY_KNOWN_COMMIT
 
 # Patch poky with meta-zephyr-sdk patches
-echo "Patching poky in: $PWD"
-for i in $META_ZEPHYR_SDK_SOURCE/poky-patches/*.patch;
-do
-    patch -s -p0 < $i;
-done
+if [ -d $META_ZEPHYR_SDK_SOURCE/poky-patches ] ; then
+	echo "Patching poky in: $PWD"
+	for i in $META_ZEPHYR_SDK_SOURCE/poky-patches/*.patch;
+	do
+	    patch -s -p0 < $i;
+	done
+fi

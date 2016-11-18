@@ -7,16 +7,6 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/LICENSE;md5=4d92cd373abda3937c2bc47fbc49d
 TOOLCHAIN_TARGET_TASK ?= ""
 
 TOOLCHAIN_HOST_TASK ?= "\
-    nativesdk-binutils \
-    nativesdk-gcc \
-    nativesdk-gcc-symlinks \
-    nativesdk-g++ \
-    nativesdk-g++-symlinks \
-    nativesdk-libgcc \
-    nativesdk-libgcc-dev \
-    nativesdk-libstdc++ \
-    nativesdk-libstdc++-dev \
-    nativesdk-make \
     nativesdk-zephyr-qemu \
     nativesdk-hidapi-libusb \
     nativesdk-python \

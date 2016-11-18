@@ -7,12 +7,12 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=59530bdf33659b29e73d4adb9f9f6552 \
 SRC_URI[md5sum] = "8f8ced422fe462a00e0135a643544f17"
 SRC_URI[sha256sum] = "d282508cb7df0cb8b2cf659032ce1bede7b5725796e3ac90f3cd9d65844a65f2"
 
-PV = "7.10+gitarc"
+PV = "7.12+gitarc"
 
-SRCREV = "4a3bd3588e5b504555d8ca65459c5715da44c54d"
-SRC_URI = "git://github.com/foss-for-synopsys-dwc-arc-processors/binutils-gdb.git;branch=arc-7.10"
+SRCREV="dc438f4b8706257bdd10846ef98a1b2b9666d8da"
+SRC_URI = "git://github.com/foss-for-synopsys-dwc-arc-processors/binutils-gdb.git;branch=arc-2016.09-gdb"
 
 S = "${WORKDIR}/git"
-#EXTRA_OECONF_remove_arc = "--disable-sim"
+
 EXTRA_OECONF_remove_arc = "--disable-multilib"
-#EXTRA_OECONF_append_arc = " --enable-sim "
+

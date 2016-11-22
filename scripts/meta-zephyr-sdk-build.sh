@@ -106,6 +106,20 @@ cp ./tmp/deploy/sdk/*.sh $TOOLCHAINS
 [ $? -ne 0 ] && exit 1
 echo "Building additional host tools...done"
 
+# build Xtensa toolchain
+header "Building Xtensa toolchain..."
+newbuild build-zephyr-xtensa  > /dev/null
+setconf_var "MACHINE" "xtensa" $localconf
+setconf_var "TCLIBC" "baremetal" $localconf
+setconf_var "TOOLCHAIN_TARGET_TASK_append" " newlib" $localconf
+rm -f ./tmp/deploy/sdk/*.sh 
+bitbake meta-toolchain -c clean  > /dev/null
+bitbake meta-toolchain 
+[ $? -ne 0 ] && echo "Error(s) encountered during bitbake." && exit 1
+cp ./tmp/deploy/sdk/*.sh $TOOLCHAINS
+[ $? -ne 0 ] && exit 1
+header "Building Xtensa toolchain...done"
+
 # build NIOS2 toolchain
 header "Building Nios2 toolchain..."
 newbuild build-zephyr-nios2  > /dev/null

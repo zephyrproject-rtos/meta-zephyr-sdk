@@ -1,0 +1,15 @@
+--- a/libgcc/config/xtensa/ieee754-df.S	2016-02-17 12:21:48.000000000 -0800
++++ b/libgcc/config/xtensa/ieee754-df.S	2016-11-02 09:00:37.570953304 -0700
+@@ -279,7 +279,11 @@
+ 	
+ 	/* Same thing as the "round" code except the msb of the leftover
+ 	   fraction is bit 0 of a10, with the rest of the fraction in a9.  */
+-	bbci.l	a10, 0, 1f
++#ifdef __XTENSA_EB__
++	bbci	a10, 31, 1f 
++#else
++	bbci	a10, 0, 1f
++#endif
+ 	addi	xl, xl, 1
+ 	beqz	xl, .Ladd_roundcarry
+ 	beqz	a9, .Ladd_exactlyhalf

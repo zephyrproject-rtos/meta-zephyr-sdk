@@ -1,0 +1,12 @@
+--- a/include/xtensa-config.h	2016-11-21 16:30:50.854187632 -0800
++++ b/include/xtensa-config.h	2016-11-21 16:30:15.226010962 -0800
+@@ -25,7 +25,8 @@
+    macros.  */
+ 
+ #undef XCHAL_HAVE_BE
+-#define XCHAL_HAVE_BE			1
++//#define XCHAL_HAVE_BE			1
++#define XCHAL_HAVE_BE			0 
+ 
+ #undef XCHAL_HAVE_DENSITY
+ #define XCHAL_HAVE_DENSITY		1

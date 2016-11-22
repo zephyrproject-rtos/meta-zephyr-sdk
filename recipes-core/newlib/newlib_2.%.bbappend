@@ -45,3 +45,28 @@ EXTRA_OECONF_append_iamcu = " \
 	--disable-newlib-unbuf-stream-opt --enable-lite-exit \
 	"
 
+########################################################################
+#
+# XTENSA specific
+#
+########################################################################
+PV_xtensa = "2.2.0"
+FILESEXTRAPATHS_prepend_xtensa := "${THISDIR}/${PN}:"
+LIC_FILES_CHKSUM_xtensa = "file://COPYING;md5=59530bdf33659b29e73d4adb9f9f6552 \
+                    file://COPYING3.LIB;md5=6a6a8e020838b23406c81b19c1d46df6 \
+                    file://COPYING3;md5=d32239bcb673463ab874e80d47fae504 \
+                    file://COPYING.LIB;md5=9f604d8a4f8e74f4f5140845a21b6674 \
+                    file://COPYING.NEWLIB;md5=3e3652588619359190b26489933b4334 \
+                    file://newlib/libc/posix/COPYRIGHT;md5=103468ff1982be840fdf4ee9f8b51bbf \
+                    file://newlib/libc/sys/linux/linuxthreads/LICENSE;md5=73640207fbc79b198c7ffd4ad4d97aa0"
+
+SRC_URI_xtensa = "git://github.com/jcmvbkbc/newlib-xtensa.git;protocol=https;branch=xtensa"
+
+SRCREV_xtensa = "b06f1b57cdf0c6dbe20caaca2da0f78004d71ec4"
+SRC_URI_xtensa += "file://assert-fiprintf.patch"
+SRC_URI_xtensa += "file://xtensa-newlib.patch"
+S_xtensa = "${WORKDIR}/git"
+
+# XTENSA specific settings
+TUNE_CCARGS_xtensa := " -nostdlib"
+

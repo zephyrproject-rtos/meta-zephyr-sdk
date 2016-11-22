@@ -1,0 +1,360 @@
+diff --git a/newlib/libc/machine/xtensa/memcpy.S b/newlib/libc/machine/xtensa/memcpy.S
+index 139dbcd..1a00189 100644
+--- a/newlib/libc/machine/xtensa/memcpy.S
++++ b/newlib/libc/machine/xtensa/memcpy.S
+@@ -96,7 +96,11 @@ __memcpy_aux:
+ 	addi	a5, a5, 1
+ 
+ 	/* Return to main algorithm if dst is now aligned.  */
+-	bbci.l	a5, 1, .Ldstaligned
++#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
++	bbci	a5, 1, .Ldstaligned
++#else
++	bbci	a5, 31-1, .Ldstaligned
++#endif
+ 
+ .Ldst2mod4: // dst has 16-bit alignment
+ 
+@@ -124,8 +128,13 @@ memcpy:
+ 	/* a2 = dst, a3 = src, a4 = len */
+ 
+ 	mov	a5, a2		// copy dst so that a2 is return value
+-	bbsi.l	a2, 0, .Ldst1mod2
+-	bbsi.l	a2, 1, .Ldst2mod4
++#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
++	bbsi	a2, 0, .Ldst1mod2
++	bbsi	a2, 1, .Ldst2mod4
++#else
++	bbsi	a2, 31-0, .Ldst1mod2
++	bbsi	a2, 31-1, .Ldst2mod4
++#endif
+ .Ldstaligned:
+ 
+ 	/* Get number of loop iterations with 16B per iteration.  */
+@@ -158,7 +167,11 @@ memcpy:
+ #endif
+ 
+ 	/* Copy any leftover pieces smaller than 16B.  */
+-2:	bbci.l	a4, 3, 3f
++#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
++2:	bbci	a4, 3, 3f
++#else
++2:	bbci	a4, 31-3, 3f
++#endif
+ 
+ 	/* Copy 8 bytes.  */
+ 	l32i	a6, a3, 0
+@@ -168,9 +181,15 @@ memcpy:
+ 	s32i	a7, a5, 4
+ 	addi	a5, a5, 8
+ 
+-3:	bbsi.l	a4, 2, 4f
+-	bbsi.l	a4, 1, 5f
+-	bbsi.l	a4, 0, 6f
++#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
++3:	bbsi	a4, 2, 4f
++	bbsi	a4, 1, 5f
++	bbsi	a4, 0, 6f
++#else
++3:	bbsi	a4, 31-2, 4f
++	bbsi	a4, 31-1, 5f
++	bbsi	a4, 31-0, 6f
++#endif
+ 	leaf_return
+ 
+ 	.align 4
+@@ -179,8 +198,13 @@ memcpy:
+ 	addi	a3, a3, 4
+ 	s32i	a6, a5, 0
+ 	addi	a5, a5, 4
+-	bbsi.l	a4, 1, 5f
+-	bbsi.l	a4, 0, 6f
++#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
++	bbsi	a4, 1, 5f
++	bbsi	a4, 0, 6f
++#else
++	bbsi	a4, 31-1, 5f
++	bbsi	a4, 31-0, 6f
++#endif
+ 	leaf_return
+ 
+ 	/* Copy 2 bytes.  */
+@@ -188,7 +212,11 @@ memcpy:
+ 	addi	a3, a3, 2
+ 	s16i	a6, a5, 0
+ 	addi	a5, a5, 2
+-	bbsi.l	a4, 0, 6f
++#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
++	bbsi	a4, 0, 6f
++#else
++	bbsi	a4, 31-0, 6f
++#endif
+ 	leaf_return
+ 
+ 	/* Copy 1 byte.  */
+@@ -238,9 +266,11 @@ memcpy:
+ #if !XCHAL_HAVE_LOOPS
+ 	bltu	a3, a10, 1b
+ #endif
+-
+-2:	bbci.l	a4, 3, 3f
+-
++#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
++2:	bbci	a4, 3, 3f
++#else
++2:	bbci	a4, 31-3, 3f
++#endif
+ 	/* Copy 8 bytes.  */
+ 	l32i	a7, a3, 4
+ 	l32i	a8, a3, 8
+@@ -251,8 +281,11 @@ memcpy:
+ 	s32i	a7, a5, 4
+ 	addi	a5, a5, 8
+ 	mov	a6, a8
+-
+-3:	bbci.l	a4, 2, 4f
++#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
++3:	bbci	a4, 2, 4f
++#else
++3:	bbci	a4, 31-2, 4f
++#endif
+ 
+ 	/* Copy 4 bytes.  */
+ 	l32i	a7, a3, 4
+@@ -265,8 +298,13 @@ memcpy:
+ #if UNALIGNED_ADDRESSES_CHECKED
+ 	add	a3, a3, a11	// readjust a3 with correct misalignment
+ #endif
+-	bbsi.l	a4, 1, 5f
+-	bbsi.l	a4, 0, 6f
++#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
++	bbsi	a4, 1, 5f
++	bbsi	a4, 0, 6f
++#else
++	bbsi	a4, 31-1, 5f
++	bbsi	a4, 31-0, 6f
++#endif
+ 	leaf_return
+ 
+ 	/* Copy 2 bytes.  */
+@@ -276,7 +314,11 @@ memcpy:
+ 	s8i	a6, a5, 0
+ 	s8i	a7, a5, 1
+ 	addi	a5, a5, 2
+-	bbsi.l	a4, 0, 6f
++#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
++	bbsi	a4, 0, 6f
++#else
++	bbsi	a4, 31-0, 6f
++#endif
+ 	leaf_return
+ 
+ 	/* Copy 1 byte.  */
+diff --git a/newlib/libc/machine/xtensa/memset.S b/newlib/libc/machine/xtensa/memset.S
+index 9ad21b9..33311d7 100644
+--- a/newlib/libc/machine/xtensa/memset.S
++++ b/newlib/libc/machine/xtensa/memset.S
+@@ -81,7 +81,11 @@ __memset_aux:
+ 	addi	a4, a4, -1
+ 
+ 	/* Now retest if dst is aligned.  */
+-	_bbci.l	a5, 1, .Ldstaligned
++#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
++	_bbci	a5, 1, .Ldstaligned
++#else
++	_bbci	a5, 31-1, .Ldstaligned
++#endif
+ 
+ .Ldst2mod4: // dst has 16-bit alignment
+ 
+@@ -114,8 +118,13 @@ memset:
+ 	mov	a5, a2		// copy dst so that a2 is return value
+ 
+ 	/* Check if dst is unaligned.  */
+-	_bbsi.l	a2, 0, .Ldst1mod2
+-	_bbsi.l	a2, 1, .Ldst2mod4
++#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
++	_bbsi	a2, 0, .Ldst1mod2
++	_bbsi	a2, 1, .Ldst2mod4
++#else
++	_bbsi	a2, 31-0, .Ldst1mod2
++	_bbsi	a2, 31-1, .Ldst2mod4
++#endif
+ .Ldstaligned:
+ 
+ 	/* Get number of loop iterations with 16B per iteration.  */
+@@ -140,27 +149,37 @@ memset:
+ #endif
+ 
+ 	/* Set any leftover pieces smaller than 16B.  */
+-2:	bbci.l	a4, 3, 3f
++#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
++2:	bbci	a4, 3, 3f
++#else
++2:	bbci	a4, 31-3, 3f
++#endif
+ 
+ 	/* Set 8 bytes.  */
+ 	s32i	a3, a5, 0
+ 	s32i	a3, a5, 4
+ 	addi	a5, a5, 8
+-
+-3:	bbci.l	a4, 2, 4f
+-
++#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
++3:	bbci	a4, 2, 4f
++#else
++3:	bbci	a4, 31-2, 4f
++#endif
+ 	/* Set 4 bytes.  */
+ 	s32i	a3, a5, 0
+ 	addi	a5, a5, 4
+-
+-4:	bbci.l	a4, 1, 5f
+-
++#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
++4:	bbci	a4, 1, 5f
++#else
++4:	bbci	a4, 31-1, 5f
++#endif
+ 	/* Set 2 bytes.  */
+ 	s16i	a3, a5, 0
+ 	addi	a5, a5, 2
+-
+-5:	bbci.l	a4, 0, 6f
+-
++#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
++5:	bbci	a4, 0, 6f
++#else
++5:	bbci	a4, 31-0, 6f
++#endif
+ 	/* Set 1 byte.  */
+ 	s8i	a3, a5, 0
+ 6:	leaf_return
+diff --git a/newlib/libc/machine/xtensa/strcpy.S b/newlib/libc/machine/xtensa/strcpy.S
+index 167aa9e..25af40b 100644
+--- a/newlib/libc/machine/xtensa/strcpy.S
++++ b/newlib/libc/machine/xtensa/strcpy.S
+@@ -38,8 +38,13 @@ strcpy:
+ 	movi	a5, MASK1
+ 	movi	a6, MASK2
+ 	movi	a7, MASK3
+-	bbsi.l	a3, 0, .Lsrc1mod2
+-	bbsi.l	a3, 1, .Lsrc2mod4
++#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
++	bbsi	a3, 0, .Lsrc1mod2
++	bbsi	a3, 1, .Lsrc2mod4
++#else
++	bbsi	a3, 31-0, .Lsrc1mod2
++	bbsi	a3, 31-1, .Lsrc2mod4
++#endif
+ .Lsrcaligned:
+ 
+ 	/* Check if the destination is aligned.  */
+@@ -54,7 +59,11 @@ strcpy:
+ 	s8i	a8, a10, 0	// store byte 0
+ 	beqz	a8, 1f		// if byte 0 is zero
+ 	addi	a10, a10, 1	// advance dst pointer
+-	bbci.l	a3, 1, .Lsrcaligned // if src is now word-aligned
++#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
++	bbci	a3, 1, .Lsrcaligned // if src is now word-aligned
++#else
++	bbci	a3, 31-1, .Lsrcaligned // if src is now word-aligned
++#endif
+ 
+ .Lsrc2mod4: // src address is 2 mod 4
+ 	l8ui	a8, a3, 0	// get byte 0
+diff --git a/newlib/libc/machine/xtensa/strlen.S b/newlib/libc/machine/xtensa/strlen.S
+index 6560a31..051a734 100644
+--- a/newlib/libc/machine/xtensa/strlen.S
++++ b/newlib/libc/machine/xtensa/strlen.S
+@@ -38,15 +38,24 @@ strlen:
+ 	movi	a5, MASK1
+ 	movi	a6, MASK2
+ 	movi	a7, MASK3
+-	bbsi.l	a2, 0, .L1mod2
+-	bbsi.l	a2, 1, .L2mod4
++#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
++	bbsi	a2, 0, .L1mod2
++	bbsi	a2, 1, .L2mod4
++#else
++	bbsi	a2, 31-0, .L1mod2
++	bbsi	a2, 31-1, .L2mod4
++#endif
+ 	j	.Laligned
+ 
+ .L1mod2: // address is odd
+ 	l8ui	a8, a3, 4	// get byte 0
+ 	addi	a3, a3, 1	// advance string pointer
+ 	beqz	a8, .Lz3	// if byte 0 is zero
+-	bbci.l	a3, 1, .Laligned // if string pointer is now word-aligned
++#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
++	bbci	a3, 1, .Laligned // if string pointer is now word-aligned
++#else
++	bbci	a3, 31-1, .Laligned // if string pointer is now word-aligned
++#endif
+ 
+ .L2mod4: // address is 2 mod 4
+ 	addi	a3, a3, 2	// advance ptr for aligned access
+diff --git a/newlib/libc/machine/xtensa/strncpy.S b/newlib/libc/machine/xtensa/strncpy.S
+index 5206e2c..96ea51d 100644
+--- a/newlib/libc/machine/xtensa/strncpy.S
++++ b/newlib/libc/machine/xtensa/strncpy.S
+@@ -37,7 +37,11 @@ __strncpy_aux:
+ 	beqz    a4, .Lret       // if n is zero
+ 	addi	a10, a10, 1	// advance dst pointer
+ 	beqz	a8, .Lfill	// if byte 0 is zero
+-	bbci.l	a3, 1, .Lsrcaligned // if src is now word-aligned
++#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
++	bbci	a3, 1, .Lsrcaligned // if src is now word-aligned
++#else
++	bbci	a3, 31-1, .Lsrcaligned // if src is now word-aligned
++#endif
+ 
+ .Lsrc2mod4: // src address is 2 mod 4
+ 	l8ui	a8, a3, 0	// get byte 0
+@@ -73,8 +77,13 @@ strncpy:
+ 	movi	a5, MASK1
+ 	movi	a6, MASK2
+ 	movi	a7, MASK3
+-	bbsi.l	a3, 0, .Lsrc1mod2
+-	bbsi.l	a3, 1, .Lsrc2mod4
++#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
++	bbsi	a3, 0, .Lsrc1mod2
++	bbsi	a3, 1, .Lsrc2mod4
++#else
++	bbsi	a3, 31-0, .Lsrc1mod2
++	bbsi	a3, 31-1, .Lsrc2mod4
++#endif
+ .Lsrcaligned:
+ 
+ 	/* Check if the destination is aligned.  */
+@@ -88,8 +97,13 @@ strncpy:
+ 
+ .Lfill:
+ 	movi	a9, 0
+-	bbsi.l	a10, 0, .Lfill1mod2
+-	bbsi.l	a10, 1, .Lfill2mod4
++#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
++	bbsi	a10, 0, .Lfill1mod2
++	bbsi	a10, 1, .Lfill2mod4
++#else
++	bbsi	a10, 31-0, .Lfill1mod2
++	bbsi	a10, 31-1, .Lfill2mod4
++#endif
+ .Lfillaligned:
+ 	blti	a4, 4, .Lfillcleanup
+ 
+@@ -129,7 +143,11 @@ strncpy:
+ 	addi	a4, a4, -1	// decrement n
+ 	beqz    a4, 2b		// if n is zero
+ 	addi    a10, a10, 1	// advance dst pointer
+-	bbci.l	a10, 1, .Lfillaligned // if dst is now word-aligned
++#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
++	bbci	a10, 1, .Lfillaligned // if dst is now word-aligned
++#else
++	bbci	a10, 31-1, .Lfillaligned // if dst is now word-aligned
++#endif
+ 
+ .Lfill2mod4: // dst address is 2 mod 4
+ 	s8i	a9, a10, 0	// store byte 0

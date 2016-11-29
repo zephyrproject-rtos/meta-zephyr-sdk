@@ -21,6 +21,7 @@ TOOLCHAIN_HOST_TASK ?= "\
     nativesdk-openocd-legacy \
     nativesdk-bossa \
     nativesdk-open-firmware-tools \
+    nativesdk-dtc \
     "
 
 TOOLCHAIN_OUTPUTNAME ?= "${DISTRO}-${SDKMACHINE}-hosttools-standalone-${DISTRO_VERSION}"

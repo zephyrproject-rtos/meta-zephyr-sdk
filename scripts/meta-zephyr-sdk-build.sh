@@ -120,6 +120,19 @@ cp ./tmp/deploy/sdk/*.sh $TOOLCHAINS
 [ $? -ne 0 ] && exit 1
 header "Building Xtensa toolchain...done"
 
+# build RISC-V toolchain
+header "Building riscv32 toolchain..."
+newbuild build-zephyr-riscv32  > /dev/null
+setconf_var "MACHINE" "riscv32" $localconf
+setconf_var "TCLIBC" "baremetal" $localconf
+setconf_var "TOOLCHAIN_TARGET_TASK_append" " newlib" $localconf
+rm -f ./tmp/deploy/sdk/*.sh 
+bitbake meta-toolchain -c clean  > /dev/null
+bitbake meta-toolchain 
+[ $? -ne 0 ] && echo "Error(s) encountered during bitbake." && exit 1
+cp ./tmp/deploy/sdk/*.sh $TOOLCHAINS
+[ $? -ne 0 ] && exit 1
+header "Building riscv32 toolchain...done"
 # build NIOS2 toolchain
 header "Building Nios2 toolchain..."
 newbuild build-zephyr-nios2  > /dev/null

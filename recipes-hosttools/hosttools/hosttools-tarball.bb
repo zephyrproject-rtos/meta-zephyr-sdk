@@ -21,6 +21,7 @@ TOOLCHAIN_HOST_TASK ?= "\
     nativesdk-openocd-legacy \
     nativesdk-bossa \
     nativesdk-open-firmware-tools \
+    nativesdk-zephyr-qemu-riscv  \
     nativesdk-dtc \
     "
 

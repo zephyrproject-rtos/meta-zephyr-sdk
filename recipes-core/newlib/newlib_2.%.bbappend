@@ -70,3 +70,30 @@ S_xtensa = "${WORKDIR}/git"
 # XTENSA specific settings
 TUNE_CCARGS_xtensa := " -nostdlib"
 
+########################################################################
+#
+# RISC-V specific
+#
+########################################################################
+PV_riscv32 = "2.2.0"
+
+LIC_FILES_CHKSUM_riscv32 = "file://COPYING;md5=59530bdf33659b29e73d4adb9f9f6552 \
+                    file://COPYING3.LIB;md5=6a6a8e020838b23406c81b19c1d46df6 \
+                    file://COPYING3;md5=d32239bcb673463ab874e80d47fae504 \
+                    file://COPYING.LIB;md5=9f604d8a4f8e74f4f5140845a21b6674 \
+                    file://COPYING.NEWLIB;md5=27039641b800547bbcea82a8a5b707ad \
+                    file://newlib/libc/posix/COPYRIGHT;md5=103468ff1982be840fdf4ee9f8b51bbf \
+                    file://newlib/libc/sys/linux/linuxthreads/LICENSE;md5=73640207fbc79b198c7ffd4ad4d97aa0"
+
+SRC_URI_riscv32 = "git://github.com/riscv/riscv-newlib.git;protocol=https;branch=riscv-newlib-2.2.0"
+SRC_URI_riscv32 += "file://riscv32-newlib.patch"
+SRC_URI_riscv32 += "file://assert-fiprintf.patch"
+SRC_URI_riscv32 += "file://riscv32-config.sub.patch"
+
+SRCREV_riscv32 = "77f0072999addb5d5b5c551baec21565aaf3a9e0"
+S_riscv32 = "${WORKDIR}/git"
+
+EXTRA_OECONF_append_riscv32 = " --disable-multilib "
+
+# RISC-V specific settings
+TUNE_CCARGS_riscv32 := " -nostdlib"

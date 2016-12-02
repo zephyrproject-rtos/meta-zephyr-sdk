@@ -24,6 +24,7 @@ SRCREV ="ca43eb612a1c4a78c33c17f70c74530c47b9694a"
 
 SRC_URI = "\
      git://github.com/riscv/riscv-binutils-gdb.git;protocol=https;branch=riscv-next \
+     file://add-old-eret-opcode.patch \
      "
 
 S  = "${WORKDIR}/git"

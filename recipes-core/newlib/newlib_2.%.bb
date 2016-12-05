@@ -19,6 +19,7 @@ SRC_URI[md5sum] = "37c07a65c6effdb4822fb6f83067f37e"
 SRC_URI[sha256sum] = "545b3d235e350d2c61491df8b9f775b1b972f191380db8f52ec0b1c829c52706"
 SRC_URI += "file://gettimeofday-header-fix.patch"
 SRC_URI += "file://assert-fiprintf.patch"
+SRC_URI += "file://iamcu-commit-5d3ad3b.patch"
 
 S = "${WORKDIR}/newlib-${PV}"
 
@@ -38,6 +39,9 @@ TUNE_CCARGS_arm := "-nostdlib"
 # NIOS2 specific settings
 TUNE_CCARGS_nios2 := " -nostdlib"
 
+# IAMCU specific settings
+TUNE_CCARGS_iamcu := " -nostdlib -miamcu -m32"
+
 # This will determine the name of the folder with libc as well.
 NEWLIB_HOST = "${TARGET_SYS}"
 
@@ -52,6 +56,9 @@ EXTRA_OECONF = " --enable-languages=c \
     --disable-newlib-fseek-optimization \
     --enable-newlib-nano-formatted-io \
     --enable-newlib-nano-malloc \
+    --disable-newlib-fvwrite-in-streamio \
+    --disable-newlib-unbuf-stream-opt --enable-lite-exit \
+    --enable-newlib-global-atexit \
 "
 
 do_configure () {

@@ -26,27 +26,6 @@ INSANE_SKIP_${PN}_arc += " staticdev "
 
 ########################################################################
 #
-# IAMCU specific
-#
-########################################################################
-FILESEXTRAPATHS_prepend_iamcu := "${THISDIR}/${PN}:"
-LIC_FILES_CHKSUM_iamcu = " "
-
-SRC_URI_iamcu = "file://iamcu_newlib_220-01638bd.tar.7z"
-S_iamcu = "${WORKDIR}/iamcu_newlib_220-01638bd"
-PATH_prepend_iamcu = "${STAGING_DIR_NATIVE}${bindir_native}/i586${TARGET_VENDOR}-${TARGET_OS}:"
-
-# IAMCU specific settings
-TUNE_CCARGS_iamcu := " -nostdlib -miamcu -m32"
-
-EXTRA_OECONF_append_iamcu = " \
-	--disable-multilib --enable-newlib-global-atexit \
-	--disable-newlib-fvwrite-in-streamio \
-	--disable-newlib-unbuf-stream-opt --enable-lite-exit \
-	"
-
-########################################################################
-#
 # XTENSA specific
 #
 ########################################################################

@@ -34,13 +34,8 @@ SRC_URI = " \
 	file://arc_dbg.h \
 	file://arc_quark.c \
 	file://quark_se.c \
-	file://hs.tcl \
-	file://em.tcl \
-	file://common.tcl \
-	file://v2.tcl \
-	file://arc32.tcl \
-	file://arcompact.tcl \
 	file://866774a6.patch \
+	file://tcl/* \
 	"
 
 S = "${WORKDIR}/git"
@@ -55,7 +50,7 @@ do_configure() {
     cp ${WORKDIR}/arc32.* ${S}/src/target
     cp ${WORKDIR}/quark_se.c ${S}/src/target
     cp ${WORKDIR}/arc_*.* ${S}/src/target
-    cp ${WORKDIR}/*.tcl ${S}/tcl/cpu/arc
+    cp -v -r ${WORKDIR}/tcl ${S}
     cd ${S} 
     export ALL_PROXY="${ALL_PROXY}"
     export GIT_PROXY_COMMAND=${GIT_PROXY_COMMAND}

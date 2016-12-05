@@ -87,21 +87,6 @@ static int arc_core_soft_reset_halt(struct target *target)
 	return retval;
 }
 
-static int quark_arc_assert_reset(struct target *target)
-{
-	/* halt target before to restore memory */
-	if (target->state == TARGET_RUNNING) {
-		if (target_halt(target) != ERROR_OK) {
-			LOG_ERROR("%s could not halt target and therefore, "
-					"breakpoints in flash may not be deleted", __func__);
-		}
-	}
-	/* restore memory and delete breakpoints */
-	arc_dbg_reset_actionpoints(target);
-	/* do generic arc reset */
-	return arc_ocd_assert_reset(target);
-}
-
 struct target_type arc32_target = {
 	.name = "arc32",
 	.poll =	arc_ocd_poll,
@@ -111,8 +96,7 @@ struct target_type arc32_target = {
 	.halt = arc_dbg_halt,
 	.resume = arc_dbg_resume,
 	.step = arc_dbg_step,
-//	.assert_reset = arc_ocd_assert_reset,
-	.assert_reset = quark_arc_assert_reset,
+	.assert_reset = arc_ocd_assert_reset,
 	.deassert_reset = arc_ocd_deassert_reset,
 	.soft_reset_halt = arc_core_soft_reset_halt,
 	.get_gdb_reg_list = arc_regs_get_gdb_reg_list,
@@ -120,13 +104,14 @@ struct target_type arc32_target = {
 	.write_memory = quark_se_arc_write_memory,
 	.checksum_memory = arc_mem_checksum,
 	.blank_check_memory = arc_mem_blank_check,
-	
+
 	.add_breakpoint = arc_dbg_add_breakpoint,
 	.add_context_breakpoint = arc_dbg_add_context_breakpoint,
 	.add_hybrid_breakpoint = arc_dbg_add_hybrid_breakpoint,
 	.remove_breakpoint = arc_dbg_remove_breakpoint,
 	.add_watchpoint = arc_dbg_add_watchpoint,
 	.remove_watchpoint = arc_dbg_remove_watchpoint,
+	.hit_watchpoint = arc_hit_watchpoint,
 
 	.run_algorithm = arc_mem_run_algorithm,
 	.start_algorithm = arc_mem_start_algorithm,

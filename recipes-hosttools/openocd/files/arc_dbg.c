@@ -435,6 +435,13 @@ int arc_dbg_enter_debug(struct target *target)
 	/* TODO: I think this should be moved to halt(). */
 	CHECK_RETVAL(arc_jtag_read_aux_reg_one(&arc32->jtag_info, AUX_DEBUG_REG, &value));
 	value |= SET_CORE_FORCE_HALT; /* set the HALT bit */
+	if (strcmp(target_type_name(target), "arc32") == 0) {
+		if (!(value & 0x00100000)) {
+			/* Enable the clock to actionpoint modules */
+			value |= 0x00100000;
+			LOG_DEBUG("Setting ED bit in DEBUG aux register");
+		}
+	}
 	CHECK_RETVAL(arc_jtag_write_aux_reg_one(&arc32->jtag_info, AUX_DEBUG_REG, value));
 	alive_sleep(1);
 

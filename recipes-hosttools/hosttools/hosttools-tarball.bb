@@ -18,7 +18,6 @@ TOOLCHAIN_HOST_TASK ?= "\
     nativesdk-python3-modules \
     nativesdk-python3-ply \
     nativesdk-openocd \
-    nativesdk-openocd-legacy \
     nativesdk-bossa \
     nativesdk-open-firmware-tools \
     nativesdk-zephyr-qemu-riscv  \

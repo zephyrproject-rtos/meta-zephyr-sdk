@@ -20,12 +20,12 @@ BINUPV = "${@binutils_branch_version(d)}"
 
 PV = "2.27+gitriscv32"
 
-SRCREV ="ca43eb612a1c4a78c33c17f70c74530c47b9694a"
+SRCREV = "1d307f86616a965df6f3c6a2c4a5ecaae42b9d13"
 
 SRC_URI = "\
-     git://github.com/riscv/riscv-binutils-gdb.git;protocol=https;branch=riscv-next \
-     file://add-old-eret-opcode.patch \
-     "
+    git://github.com/riscv/riscv-binutils-gdb.git;protocol=https;branch=__archive__ \
+    file://add-old-eret-opcode.patch \
+    "
 
 S  = "${WORKDIR}/git"
 

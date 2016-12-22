@@ -24,11 +24,11 @@ def xtensa_machdata_setfunc(machdata, d):
 
 PACKAGEQA_EXTRA_MACHDEFFUNCS = "xtensa_machdata_setfunc"
 
-def xtensa_siteinfo_func(archinfo, osinfo, targetinfo, d):
+def xtensa_siteinfo_setfunc(archinfo, osinfo, targetinfo, d):
     archinfo['xtensa'] = "endian-little bit-32 "
     osinfo['linux'] = "common-linux common-glibc"
     targetinfo['xtensa-linux'] = "xtensa-linux"
     return archinfo, osinfo, targetinfo
 
-SITEINFO_EXTRA_DATAFUNCS = "xtensa_siteinfo_func"
+SITEINFO_EXTRA_DATAFUNCS = "xtensa_siteinfo_setfunc"
 

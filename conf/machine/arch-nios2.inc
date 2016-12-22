@@ -17,8 +17,8 @@ TUNE_CCARGS .= "${@bb.utils.contains('TUNE_FEATURES', 'no-hw-mul', ' -mno-hw-mul
 
 TUNEVALID[nios2] = "Altera Nios2"
 
-def machdata_setfunc(machdata, d):
+def nios2_machdata_setfunc(machdata, d):
     machdata["elf"] = {"nios2":  (113, 0, 0, True, 32), }
     return machdata
 
-PACKAGEQA_EXTRA_MACHDEFFUNCS = "machdata_setfunc"
+PACKAGEQA_EXTRA_MACHDEFFUNCS = "nios2_machdata_setfunc"

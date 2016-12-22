@@ -7,17 +7,17 @@ TUNE_CCARGS = " -nostdlib "
 
 TUNEVALID[littleendian] = "Little endian mode"
 
-def siteinfo_setfunc(archinfo, osinfo, targetinfo, d):
+def riscv32_siteinfo_setfunc(archinfo, osinfo, targetinfo, d):
 	archinfo['riscv32'] = "endian-little bit-32 "
 	osinfo['linux'] = "common-linux common-glibc"
 	targetinfo['riscv32-linux'] = "riscv32-linux"
 	return archinfo, osinfo, targetinfo
 
-SITEINFO_EXTRA_DATAFUNCS = "siteinfo_setfunc"
+SITEINFO_EXTRA_DATAFUNCS = "riscv32_siteinfo_setfunc"
 
-def machdata_setfunc(machdata, d):
+def riscv32_machdata_setfunc(machdata, d):
     machdata["elf"] = { "riscv32" : (243,    0,    0,  True,  32), }
     return machdata
 
-PACKAGEQA_EXTRA_MACHDEFFUNCS = "machdata_setfunc"
+PACKAGEQA_EXTRA_MACHDEFFUNCS = "riscv32_machdata_setfunc"
 

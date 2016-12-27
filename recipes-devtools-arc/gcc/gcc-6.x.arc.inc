@@ -23,11 +23,11 @@ LIC_FILES_CHKSUM = "\
     file://COPYING.RUNTIME;md5=fe60d87048567d4fe8c8a0ed2448bcc8 \
 "
 
-# arc-2016.09-rc1 (arc-6.x-dev) tag
-SRCREV="437d990d631e6007730e7bbae2581799eae608b6"
+# tag=arc-2016.09-release (no branch)
+SRCREV="11f277e211411c21808cbb9f6cf165902edefea3"
 
 SRC_URI = "\
-    git://github.com/foss-for-synopsys-dwc-arc-processors/gcc.git;branch=arc-6.x-dev \
+    git://github.com/foss-for-synopsys-dwc-arc-processors/gcc.git;protocol=https;nobranch=1 \
     file://0036-libcc1-fix-libcc1-s-install-path-and-rpath.patch \
     file://0039-Fix-various-_FOR_BUILD-and-related-variables.patch \
 "

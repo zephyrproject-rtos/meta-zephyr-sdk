@@ -30,6 +30,7 @@ SRC_URI = "\
     git://github.com/foss-for-synopsys-dwc-arc-processors/gcc.git;protocol=https;nobranch=1 \
     file://0036-libcc1-fix-libcc1-s-install-path-and-rpath.patch \
     file://0039-Fix-various-_FOR_BUILD-and-related-variables.patch \
+    file://cbd8e54244cd02bdcf4f1057be3ce96631f35ac3.patch \
 "
 
 S = "${TMPDIR}/work-shared/gcc-${PV}-${PR}/git"

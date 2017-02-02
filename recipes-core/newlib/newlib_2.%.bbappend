@@ -43,7 +43,6 @@ SRC_URI_xtensa = "git://github.com/jcmvbkbc/newlib-xtensa.git;protocol=https;bra
 
 SRCREV_xtensa = "b06f1b57cdf0c6dbe20caaca2da0f78004d71ec4"
 SRC_URI_xtensa += "file://assert-fiprintf.patch"
-SRC_URI_xtensa += "file://xtensa-newlib.patch"
 S_xtensa = "${WORKDIR}/git"
 
 # XTENSA specific settings

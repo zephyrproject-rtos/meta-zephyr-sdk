@@ -9,9 +9,4 @@ SRC_URI += "file://config-x86-multi-gcc.patch"
 SRC_URI += "file://config-libgcc-softfp.patch"
 SRC_URI += "file://libgcc-t-zephyr.patch"
 
-# Patches needed to build Xtensa
-SRC_URI += "file://xtensa-config.patch"
-SRC_URI += "file://ieee754-df-endian.patch"
-SRC_URI += "file://ieee754-sf-endian.patch"
-
 EXTRA_OECONF_append = " --enable-plugin "

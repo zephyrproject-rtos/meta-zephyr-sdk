@@ -48,6 +48,18 @@ S_xtensa = "${WORKDIR}/git"
 # XTENSA specific settings
 TUNE_CCARGS_xtensa := " -nostdlib"
 
+# Copy newlib overlay files into the source tree before applying patches.
+# There's no overlay when building for other architectures, so don't do
+# anything if there are no files to copy.
+
+python do_patch_prepend_xtensa () {
+    os.system('tar -xf ' + d.getVar('STAGING_DIR_TARGET', True) +
+              '/usr/src/xtensa-config/xtensa-overlay.tar.gz --strip-components=1 -C ' +
+              d.getVar('S', True) + ' newlib')
+}
+
+do_patch[depends] += "xtensa-config:do_populate_sysroot"
+
 ########################################################################
 #
 # RISC-V specific

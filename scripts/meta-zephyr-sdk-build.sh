@@ -111,7 +111,7 @@ header "Building Xtensa toolchain..."
 newbuild build-zephyr-xtensa  > /dev/null
 setconf_var "MACHINE" "xtensa" $localconf
 setconf_var "TCLIBC" "baremetal" $localconf
-setconf_var "TOOLCHAIN_TARGET_TASK_append" " newlib" $localconf
+setconf_var "TOOLCHAIN_TARGET_TASK_append" " newlib xtensa-hal-staticdev" $localconf
 rm -f ./tmp/deploy/sdk/*.sh 
 bitbake meta-toolchain -c clean  > /dev/null
 bitbake meta-toolchain 

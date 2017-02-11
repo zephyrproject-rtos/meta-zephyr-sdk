@@ -19,7 +19,7 @@ TUNE_PKGARCH = "xtensa"
 TUNE_FEATURES_tune-xtensa = "xtensa"
 
 def xtensa_machdata_setfunc(machdata, d):
-    machdata["elf"] = {"xtensa":  (94, 0, 0, False, 32), }
+    machdata["elf"] = {"xtensa":  (94, 0, 0, True, 32), }
     return machdata
 
 PACKAGEQA_EXTRA_MACHDEFFUNCS = "xtensa_machdata_setfunc"

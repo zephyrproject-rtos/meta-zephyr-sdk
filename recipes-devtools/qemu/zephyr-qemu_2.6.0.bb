@@ -9,6 +9,8 @@ SRCREV = "bfc766d38e1fae5767d43845c15c79ac8fa6d6af"
 SRC_URI = "git://github.com/qemu/qemu.git;protocol=https \
            file://nios2-add-support.patch \
            file://arm_nvic_basepri.patch \
+           file://0001-target-xtensa-sim-instantiate-local-memories.patch \
+           file://0002-target-xtensa-add-sample_controller-core.patch \
 "
 
 BBCLASSEXTEND = "native nativesdk"

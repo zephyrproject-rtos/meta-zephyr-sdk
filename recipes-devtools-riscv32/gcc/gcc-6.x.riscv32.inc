@@ -27,7 +27,7 @@ LIC_FILES_CHKSUM = "\
 SRCREV="de6438d70df93120ab631ac76106d6ed05fc6c1c"
 
 SRC_URI = "\
-    git://github.com/riscv/riscv-gcc.git;protocol=https;branch=riscv-gcc-6.1.0 \
+    git://github.com/riscv/riscv-gcc.git;protocol=https;branch=__archive__ \
     file://0036-libcc1-fix-libcc1-s-install-path-and-rpath.patch \
     file://0039-Fix-various-_FOR_BUILD-and-related-variables.patch \
     file://riscv32-multilib.patch \

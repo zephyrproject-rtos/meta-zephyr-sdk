@@ -22,6 +22,8 @@ TOOLCHAIN_HOST_TASK ?= "\
     nativesdk-open-firmware-tools \
     nativesdk-zephyr-qemu-riscv  \
     nativesdk-dtc \
+    nativesdk-python-yaml \
+    nativesdk-python3-yaml \
     "
 
 TOOLCHAIN_OUTPUTNAME ?= "${DISTRO}-${SDKMACHINE}-hosttools-standalone-${DISTRO_VERSION}"

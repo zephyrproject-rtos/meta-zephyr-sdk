@@ -122,6 +122,18 @@ read_confirm () {
 
 verify_os
 
+which python3 2>&1 > /dev/null
+if [ $? -ne 0 ]; then
+	echo "ERROR: required python3 binary not in PATH" 1>&2
+	exit 1
+fi
+
+which xz 2>&1 > /dev/null
+if [ $? -ne 0 ]; then
+	echo "ERROR: required xz binary not in PATH" 1>&2
+	exit 1
+fi
+
 if [ "$target_sdk_dir" = "" ]; then
 	read -e -p "Enter target directory for SDK (default: $DEFAULT_INSTALL_DIR): " target_sdk_dir
 	[ "$target_sdk_dir" = "" ] && target_sdk_dir=$DEFAULT_INSTALL_DIR

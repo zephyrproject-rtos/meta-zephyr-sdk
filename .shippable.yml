@@ -10,7 +10,7 @@ build:
     cache: true
     cache_dir_list:
         - ${SHIPPABLE_BUILD_DIR}/ccache
-        - /home/buildslave/src/github.com/zephyriot
+        - /home/buildslave/src/github.com/zephyrproject-rtos
     pre_ci_boot:
         image_name: nashif/zephyr
         image_tag: master.6

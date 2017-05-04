@@ -1,0 +1,29 @@
+language: c
+
+compiler: gcc
+
+env:
+    global:
+        - USE_CCACHE=1
+
+build:
+    cache: true
+    cache_dir_list:
+        - ${SHIPPABLE_BUILD_DIR}/ccache
+        - /home/buildslave/src/github.com/zephyriot
+    pre_ci_boot:
+        image_name: nashif/zephyr
+        image_tag: master.6
+        pull: true
+        options: "-e HOME=/home/buildslave --privileged=true --tty --net=bridge --user buildslave"
+
+    ci:
+      - env
+      - ccache -s
+      - sudo apt-get install -y gawk wget git-core diffstat unzip texinfo gcc-multilib build-essential chrpath socat libsdl1.2-dev xterm
+      - sudo apt-get install -y libreadline-dev
+      - sudo apt-get install -y makeself p7zip-full cpio
+      - cd ..
+      - ./meta-zephyr-sdk/scripts/meta-zephyr-sdk-clone.sh
+      - ./meta-zephyr-sdk/scripts/meta-zephyr-sdk-build.sh
+      - ccache -s

@@ -1,0 +1,161 @@
+From 01cb3050ef87bf71330d79e2139310c72e1d25ab Mon Sep 17 00:00:00 2001
+From: Max Filippov <jcmvbkbc@gmail.com>
+Date: Fri, 12 May 2017 11:09:14 -0700
+Subject: [PATCH 5/5] target/xtensa: support output to chardev console
+
+In semihosting mode QEMU allows guest to read and write host file
+descriptors directly, including descriptors 0..2, a.k.a. stdin, stdout
+and stderr. Sometimes it's desirable to have semihosting console
+controlled by -serial option, e.g. to connect it to network.
+
+Add semihosting console to xtensa-semi.c, open it in the 'sim' machine
+in the presence of -serial option and direct stdout and stderr to it
+when it's present.
+
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+---
+ hw/xtensa/sim.c             |  4 +++
+ target-xtensa/cpu.h         |  1 +
+ target-xtensa/xtensa-semi.c | 63 +++++++++++++++++++++++++++++++++++----------
+ 3 files changed, 54 insertions(+), 14 deletions(-)
+
+diff --git a/hw/xtensa/sim.c b/hw/xtensa/sim.c
+index d2d1d3a..685f592 100644
+--- a/hw/xtensa/sim.c
++++ b/hw/xtensa/sim.c
+@@ -114,6 +114,9 @@ static void xtensa_sim_init(MachineState *machine)
+         xtensa_create_memory_regions(&sysram, "xtensa.sysram");
+     }
+ 
++    if (serial_hds[0]) {
++        xtensa_sim_open_console(serial_hds[0]);
++    }
+     if (kernel_filename) {
+         uint64_t elf_entry;
+         uint64_t elf_lowaddr;
+@@ -136,6 +139,7 @@ static void xtensa_sim_machine_init(MachineClass *mc)
+     mc->is_default = true;
+     mc->init = xtensa_sim_init;
+     mc->max_cpus = 4;
++    mc->no_serial = 1;
+ }
+ 
+ DEFINE_MACHINE("sim", xtensa_sim_machine_init)
+diff --git a/target-xtensa/cpu.h b/target-xtensa/cpu.h
+index d330dfa..c62e03f 100644
+--- a/target-xtensa/cpu.h
++++ b/target-xtensa/cpu.h
+@@ -416,6 +416,7 @@ void xtensa_breakpoint_handler(CPUState *cs);
+ int cpu_xtensa_exec(CPUState *cpu);
+ void xtensa_finalize_config(XtensaConfig *config);
+ void xtensa_register_core(XtensaConfigList *node);
++void xtensa_sim_open_console(CharDriverState *chr);
+ void check_interrupts(CPUXtensaState *s);
+ void xtensa_irq_init(CPUXtensaState *env);
+ void *xtensa_get_extint(CPUXtensaState *env, unsigned extint);
+diff --git a/target-xtensa/xtensa-semi.c b/target-xtensa/xtensa-semi.c
+index 807e1b8..7e0c400 100644
+--- a/target-xtensa/xtensa-semi.c
++++ b/target-xtensa/xtensa-semi.c
+@@ -28,7 +28,13 @@
+ #include "qemu/osdep.h"
+ #include "cpu.h"
+ #include "exec/helper-proto.h"
++#include "exec/semihost.h"
++#include "qapi/error.h"
+ #include "qemu/log.h"
++#include "sysemu/char.h"
++#include "sysemu/sysemu.h"
++
++static CharDriverState *xtensa_sim_console;
+ 
+ enum {
+     TARGET_SYS_exit = 1,
+@@ -147,6 +153,11 @@ static uint32_t errno_h2g(int host_errno)
+     }
+ }
+ 
++void xtensa_sim_open_console(CharDriverState *chr)
++{
++    xtensa_sim_console = chr;
++}
++
+ void HELPER(simcall)(CPUXtensaState *env)
+ {
+     CPUState *cs = CPU(xtensa_env_get_cpu(env));
+@@ -180,10 +191,25 @@ void HELPER(simcall)(CPUXtensaState *env)
+                 if (buf) {
+                     vaddr += io_sz;
+                     len -= io_sz;
+-                    io_done = is_write ?
+-                        write(fd, buf, io_sz) :
+-                        read(fd, buf, io_sz);
+-                    regs[3] = errno_h2g(errno);
++                    if (fd < 3 && xtensa_sim_console) {
++                        if (is_write && (fd == 1 || fd == 2)) {
++                            io_done = qemu_chr_fe_write_all(xtensa_sim_console,
++                                                            buf, io_sz);
++                            regs[3] = errno_h2g(errno);
++                        } else {
++                            qemu_log_mask(LOG_GUEST_ERROR,
++                                          "%s fd %d is not supported with chardev console\n",
++                                          is_write ?
++                                          "writing to" : "reading from", fd);
++                            io_done = -1;
++                            regs[3] = TARGET_EBADF;
++                        }
++                    } else {
++                        io_done = is_write ?
++                            write(fd, buf, io_sz) :
++                            read(fd, buf, io_sz);
++                        regs[3] = errno_h2g(errno);
++                    }
+                     if (io_done == -1) {
+                         error = true;
+                         io_done = 0;
+@@ -255,10 +281,6 @@ void HELPER(simcall)(CPUXtensaState *env)
+             uint32_t target_tvv[2];
+ 
+             struct timeval tv = {0};
+-            fd_set fdset;
+-
+-            FD_ZERO(&fdset);
+-            FD_SET(fd, &fdset);
+ 
+             if (target_tv) {
+                 cpu_memory_rw_debug(cs, target_tv,
+@@ -266,12 +288,25 @@ void HELPER(simcall)(CPUXtensaState *env)
+                 tv.tv_sec = (int32_t)tswap32(target_tvv[0]);
+                 tv.tv_usec = (int32_t)tswap32(target_tvv[1]);
+             }
+-            regs[2] = select(fd + 1,
+-                    rq == SELECT_ONE_READ   ? &fdset : NULL,
+-                    rq == SELECT_ONE_WRITE  ? &fdset : NULL,
+-                    rq == SELECT_ONE_EXCEPT ? &fdset : NULL,
+-                    target_tv ? &tv : NULL);
+-            regs[3] = errno_h2g(errno);
++            if (fd < 3 && xtensa_sim_console) {
++                if ((fd == 1 || fd == 2) && rq == SELECT_ONE_WRITE) {
++                    regs[2] = 1;
++                } else {
++                    regs[2] = 0;
++                }
++                regs[3] = 0;
++            } else {
++                fd_set fdset;
++
++                FD_ZERO(&fdset);
++                FD_SET(fd, &fdset);
++                regs[2] = select(fd + 1,
++                                 rq == SELECT_ONE_READ   ? &fdset : NULL,
++                                 rq == SELECT_ONE_WRITE  ? &fdset : NULL,
++                                 rq == SELECT_ONE_EXCEPT ? &fdset : NULL,
++                                 target_tv ? &tv : NULL);
++                regs[3] = errno_h2g(errno);
++            }
+         }
+         break;
+ 
+-- 
+2.1.4
+

@@ -11,6 +11,9 @@ SRC_URI = "git://github.com/qemu/qemu.git;protocol=https \
            file://arm_nvic_basepri.patch \
            file://0001-target-xtensa-sim-instantiate-local-memories.patch \
            file://0002-target-xtensa-add-sample_controller-core.patch \
+           file://0003-target-xtensa-fix-mapping-direction-in-read-write-si.patch \
+           file://0004-target-xtensa-fix-return-value-of-read-write-simcall.patch \
+           file://0005-target-xtensa-support-output-to-chardev-console.patch \
 "
 
 BBCLASSEXTEND = "native nativesdk"

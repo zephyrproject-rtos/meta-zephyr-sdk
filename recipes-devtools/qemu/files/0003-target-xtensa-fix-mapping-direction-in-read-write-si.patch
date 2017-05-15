@@ -1,0 +1,41 @@
+From 93ebcc3e2414dcca5fc8a221a3e8eb63d6448e3e Mon Sep 17 00:00:00 2001
+From: Max Filippov <jcmvbkbc@gmail.com>
+Date: Fri, 12 May 2017 11:17:01 -0700
+Subject: [PATCH 3/5] target/xtensa: fix mapping direction in read/write
+ simcalls
+
+Read and write simcalls map physical memory to access I/O buffers, but
+'read' simcall need to map it for writing and 'write' simcall need to
+map it for reading, i.e. the opposite of what they do now. Fix that.
+
+Cc: qemu-stable@nongnu.org
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+---
+ target-xtensa/xtensa-semi.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/target-xtensa/xtensa-semi.c b/target-xtensa/xtensa-semi.c
+index 370e365..8da61ae 100644
+--- a/target-xtensa/xtensa-semi.c
++++ b/target-xtensa/xtensa-semi.c
+@@ -172,7 +172,7 @@ void HELPER(simcall)(CPUXtensaState *env)
+                     TARGET_PAGE_SIZE - (vaddr & (TARGET_PAGE_SIZE - 1));
+                 uint32_t io_sz = page_left < len ? page_left : len;
+                 hwaddr sz = io_sz;
+-                void *buf = cpu_physical_memory_map(paddr, &sz, is_write);
++                void *buf = cpu_physical_memory_map(paddr, &sz, !is_write);
+ 
+                 if (buf) {
+                     vaddr += io_sz;
+@@ -181,7 +181,7 @@ void HELPER(simcall)(CPUXtensaState *env)
+                         write(fd, buf, io_sz) :
+                         read(fd, buf, io_sz);
+                     regs[3] = errno_h2g(errno);
+-                    cpu_physical_memory_unmap(buf, sz, is_write, sz);
++                    cpu_physical_memory_unmap(buf, sz, !is_write, sz);
+                     if (regs[2] == -1) {
+                         break;
+                     }
+-- 
+2.1.4
+

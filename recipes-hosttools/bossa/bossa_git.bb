@@ -12,7 +12,7 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=94411054a7f6921218ab9c05b6b4b15b"
 DEPENDS = "readline"
 
 PR = "r0"
-SRCREV = "ce82a9fac4b916e359fb003ee4d19afc0ff01c90"
+SRCREV = "5cae9fee241bd3c95c197b2464e9b83240994c43"
 SRC_URI = "git://github.com/femtoio/BOSSA.git;protocol=https"
 
 S = "${WORKDIR}/git"

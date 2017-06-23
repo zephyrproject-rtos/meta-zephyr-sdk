@@ -1,5 +1,5 @@
 SUMMARY = "BOSSA is a flash programming utility for Atmel's SAM family of flash-based ARM microcontrollers."
-HOMEPAGE = "https://github.com/femtoio/BOSSA"
+HOMEPAGE = "https://github.com/shumatech/BOSSA"
 
 #
 # Note: In order to build this recipe, you need wxWidgets libraries :
@@ -13,7 +13,7 @@ DEPENDS = "readline"
 
 PR = "r0"
 SRCREV = "5cae9fee241bd3c95c197b2464e9b83240994c43"
-SRC_URI = "git://github.com/femtoio/BOSSA.git;protocol=https"
+SRC_URI = "git://github.com/shumatech/BOSSA.git;protocol=https"
 
 S = "${WORKDIR}/git"
 

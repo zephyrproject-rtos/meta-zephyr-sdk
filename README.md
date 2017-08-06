@@ -1,23 +1,25 @@
-# meta-zephyr-sdk
+# Build Zephyr SDK
 
-Build Zephyr SDK
-================
 
-You will need to install all the packages required to build Yocto,
-makeself and p7zip-full.
+Build the SDK in Docker using poky-zephyr-sdk container, follow the instructions below:
 
-  Yocto Requirements:
-    http://www.yoctoproject.org/docs/current/yocto-project-qs/yocto-project-qs.html#packages
+```
+$ cd $HOME
+$ mkdir -p zephyr-sdk
+$ git clone git@github.com:zephyrproject-rtos/meta-zephyr-sdk.git zephyr-sdk/meta-zephyr-sdk
+$ docker run --privileged --rm -it -v $HOME/zephyr-sdk:/workdir crops/poky-zephyr-sdk --workdir=/workdir
+```
 
-In order to build the SDK from source you need to first clone
-meta-zephyr-sdk and then from the parent directory:
+Once in the container, clone the repos and build the SDK:
 
- 1. Run clone scripts. This script will clone poky and apply patches.
-    ./meta-zephyr-sdk/scripts/meta-zephyr-sdk-clone.sh
- 2. Build SDK using script. This script will build all the tools.
-    ./meta-zephyr-sdk/scripts/meta-zephyr-sdk-build.sh
+```
+workdir$ ./meta-zephyr-sdk-clone.sh
+workdir$ ./meta-zephyr-sdk-build.sh
+```
 
-  Note: if you want, you can use enviroment variables to indicate your
-  poky and meta-zephyr-sdk location.
-    SDK_SOURCE: meta-zephyr-sdk location. Default $PWD/meta-zephyr-sdk
-    META_POKY_SOURCE: poky location. Default $PWD/poky
+When finished, the resulting SDK binary can be found under
+
+ workdir/poky/meta-zephyr-sdk/scripts
+
+For more info about container, please see: https://github.com/crops/poky-container
+

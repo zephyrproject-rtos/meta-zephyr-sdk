@@ -5,15 +5,8 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 LIC_FILES_CHKSUM = "file://COPYING;md5=441c28d2cf86e15a37fa47e15a72fbac \
                     file://COPYING.LIB;endline=24;md5=c04def7ae38850e7d3ef548588159913"
 
-SRCREV = "bfc766d38e1fae5767d43845c15c79ac8fa6d6af"
-SRC_URI = "git://github.com/qemu/qemu.git;protocol=https \
-           file://nios2-add-support.patch \
-           file://arm_nvic_basepri.patch \
-           file://0001-target-xtensa-sim-instantiate-local-memories.patch \
-           file://0002-target-xtensa-add-sample_controller-core.patch \
-           file://0003-target-xtensa-fix-mapping-direction-in-read-write-si.patch \
-           file://0004-target-xtensa-fix-return-value-of-read-write-simcall.patch \
-           file://0005-target-xtensa-support-output-to-chardev-console.patch \
+SRC_URI = "gitsm://github.com/qemu/qemu.git;tag=v2.10.0-rc4;protocol=https \
+	file://0001-target-xtensa-add-sample_controller-core.patch \
 "
 
 BBCLASSEXTEND = "native nativesdk"
@@ -200,11 +193,11 @@ inherit autotools pkgconfig
 #--disable-blobs : BIOS needed for x86
 #--disable-fdt: Cannot use if supporting ARM
 
-QEMUS_BUILT = "arm-softmmu i386-softmmu mips-softmmu nios2-softmmu xtensa-softmmu "
+QEMUS_BUILT = "arm-softmmu i386-softmmu xtensa-softmmu nios2-softmmu"
 QEMU_FLAGS = "--disable-docs  --disable-sdl --disable-debug-info  --disable-cap-ng \
   --disable-libnfs --disable-libusb --disable-libiscsi --disable-usb-redir --disable-linux-aio\
   --disable-guest-agent --disable-libssh2 --disable-vnc-png  --disable-seccomp \
-  --disable-uuid --disable-tpm  --disable-numa --disable-glusterfs \
+  --disable-tpm  --disable-numa --disable-glusterfs \
   --disable-virtfs --disable-xen --disable-curl --disable-attr --disable-curses\
   "
 

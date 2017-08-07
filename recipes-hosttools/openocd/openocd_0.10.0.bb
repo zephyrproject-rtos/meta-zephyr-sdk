@@ -8,35 +8,9 @@ RDEPENDS_${PN} = "libusb1"
 # of https://github.com/foss-for-synopsys-dwc-arc-processors/openocd
 
 SRC_URI = " \
-	git://repo.or.cz/openocd.git;tag=v0.9.0 \
-	file://ISSM_QuarkSE.patch \
-	file://d089da2b.patch \
-	file://Makefile_am.patch \
-	file://target_c.patch \
-	file://x86_32_common_c.patch \
-	file://x86_32_common_h.patch \
-	file://lakemont_c.patch \
-	file://lakemont_h.patch \
-	file://zephyr-sdk-09.patch \
-	file://arc_jtag.c \
-	file://arc_jtag.h \
-	file://arc32.c \
-	file://arc32.h \
-	file://arc_mem.c \
-	file://arc_mem.h \
-	file://arc_mntr.c \
-	file://arc_mntr.h \
-	file://arc_regs.c \
-	file://arc_regs.h \
-	file://arc_ocd.c \
-	file://arc_ocd.h \
-	file://arc_dbg.c \
-	file://arc_dbg.h \
-	file://arc_quark.c \
-	file://quark_se.c \
-	file://866774a6.patch \
-	file://tcl/* \
+	git://github.com/zephyrproject-rtos/openocd.git;protocol=https;nobranch=1 \
 	"
+SRCREV = "7852ae77b12118dbf902d85ab826ed0261c144ad"
 
 S = "${WORKDIR}/git"
 
@@ -47,10 +21,6 @@ BBCLASSEXTEND += "nativesdk"
 EXTRA_OECONF = "--enable-ftdi --enable-cmsis-dap --enable-jlink --enable-stlink --disable-doxygen-html "
 
 do_configure() {
-    cp ${WORKDIR}/arc32.* ${S}/src/target
-    cp ${WORKDIR}/quark_se.c ${S}/src/target
-    cp ${WORKDIR}/arc_*.* ${S}/src/target
-    cp -v -r ${WORKDIR}/tcl ${S}
     cd ${S} 
     export ALL_PROXY="${ALL_PROXY}"
     export GIT_PROXY_COMMAND=${GIT_PROXY_COMMAND}

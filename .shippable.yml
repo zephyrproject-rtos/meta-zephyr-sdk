@@ -3,27 +3,33 @@ language: c
 compiler: gcc
 
 env:
-    global:
-        - USE_CCACHE=1
+    matrix:
+        - SDK_TARGET=tools
+        - SDK_TARGET=xtensa
+        - SDK_TARGET=x86
+        - SDK_TARGET=arm
+        - SDK_TARGET=iamcu
+        - SDK_TARGET=arc
+        - SDK_TARGET=nios2
+        - SDK_TARGET=riscv32
 
 build:
-    cache: true
-    cache_dir_list:
-        - ${SHIPPABLE_BUILD_DIR}/ccache
-        - /home/buildslave/src/github.com/zephyriot
+    cache: false
     pre_ci_boot:
-        image_name: nashif/zephyr
-        image_tag: master.6
+        image_name: zephyrprojectrtos/ci
+        image_tag: master.27
         pull: true
         options: "-e HOME=/home/buildslave --privileged=true --tty --net=bridge --user buildslave"
 
     ci:
-      - env
-      - ccache -s
       - sudo apt-get install -y gawk wget git-core diffstat unzip texinfo gcc-multilib build-essential chrpath socat libsdl1.2-dev xterm
       - sudo apt-get install -y libreadline-dev
       - sudo apt-get install -y makeself p7zip-full cpio
       - cd ..
       - ./meta-zephyr-sdk/scripts/meta-zephyr-sdk-clone.sh
-      - ./meta-zephyr-sdk/scripts/meta-zephyr-sdk-build.sh
-      - ccache -s
+      - ./meta-zephyr-sdk/scripts/meta-zephyr-sdk-build-split.sh ${SDK_TARGET}
+      - >
+            export S3_PATH="s3://zephyr-logs/pull-requests/${REPO_FULL_NAME}/${METAZEPHYRSDK_CIREPO_VERSIONNUMBER}";
+            mkdir -p ./meta-zephyr-sdk/scripts/toolchains/;
+            cp ./meta-zephyr-sdk/scripts/make_zephyr_sdk.sh ./meta-zephyr-sdk/scripts/toolchains/;
+            aws s3 sync ./meta-zephyr-sdk/scripts/toolchains/ ${S3_PATH}/toolchains/;

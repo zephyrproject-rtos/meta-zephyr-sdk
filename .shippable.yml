@@ -32,4 +32,5 @@ build:
             export S3_PATH="s3://zephyr-logs/pull-requests/${REPO_FULL_NAME}/${METAZEPHYRSDK_CIREPO_VERSIONNUMBER}";
             mkdir -p ./meta-zephyr-sdk/scripts/toolchains/;
             cp ./meta-zephyr-sdk/scripts/make_zephyr_sdk.sh ./meta-zephyr-sdk/scripts/toolchains/;
+            cp ./meta-zephyr-sdk/scripts/template_dir ./meta-zephyr-sdk/scripts/toolchains/;
             aws s3 sync ./meta-zephyr-sdk/scripts/toolchains/ ${S3_PATH}/toolchains/;

@@ -1,3 +1,5 @@
+[![Run Status](https://api.shippable.com/projects/58ffb2b82ddacd0900464db0/badge?branch=master)](https://app.shippable.com/github/zephyrproject-rtos/meta-zephyr-sdk)
+
 # Build Zephyr SDK
 
 

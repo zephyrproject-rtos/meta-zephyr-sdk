@@ -24,7 +24,7 @@ build:
     ci:
       - cd ..
       - ./meta-zephyr-sdk/scripts/meta-zephyr-sdk-clone.sh
-      - ./meta-zephyr-sdk/scripts/meta-zephyr-sdk-build-split.sh ${SDK_TARGET}
+      - ./meta-zephyr-sdk/scripts/meta-zephyr-sdk-build-split.sh ${SDK_TARGET} || ./meta-zephyr-sdk/scripts/meta-zephyr-sdk-build-split.sh ${SDK_TARGET} || ./meta-zephyr-sdk/scripts/meta-zephyr-sdk-build-split.sh ${SDK_TARGET}
       - >
             export S3_PATH="s3://zephyr-logs/pull-requests/${REPO_FULL_NAME}/${METAZEPHYRSDK_CIREPO_VERSIONNUMBER}";
             mkdir -p ./meta-zephyr-sdk/scripts/toolchains/;

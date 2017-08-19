@@ -14,7 +14,10 @@ DEPENDS += "ncurses flex bison gperf-native"
 RDEPENDS_${PN} += "python3 bash"
 SRC_URI = "git://ymorin.is-a-geek.org/kconfig-frontends;branch=4.11.x \
 	   file://0001-Makefile-ensure-frontends-exits-before-writing-into-.patch \
-           file://0001-Switch-utils-kconfig-diff-to-use-Python-3.patch"
+           file://0001-Switch-utils-kconfig-diff-to-use-Python-3.patch \
+	   file://0001-zephyr-add-support-for-wildcards.patch \
+	   file://0002-kconfig-prefer-default-values-that-are-defined-later.patch \
+	   "
 
 SRCREV = "f22fce3a308be1c7790ebefc6bbedb33c5f7c86a"
 

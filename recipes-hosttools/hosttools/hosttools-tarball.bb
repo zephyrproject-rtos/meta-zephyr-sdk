@@ -11,6 +11,7 @@ TOOLCHAIN_HOST_TASK ?= "\
     nativesdk-hidapi-libusb \
     nativesdk-openocd \
     nativesdk-bossa \
+    nativesdk-kconfig-frontends \
     nativesdk-open-firmware-tools \
     nativesdk-zephyr-qemu-riscv  \
     nativesdk-dtc \

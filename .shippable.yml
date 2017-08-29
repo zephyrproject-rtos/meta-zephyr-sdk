@@ -17,7 +17,7 @@ build:
     cache: false
     pre_ci_boot:
         image_name: zephyrprojectrtos/ci
-        image_tag: master.36
+        image_tag: master.43
         pull: true
         options: "-e HOME=/home/buildslave --privileged=true --tty --net=bridge --user buildslave"
 

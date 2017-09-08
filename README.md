@@ -15,8 +15,8 @@ $ docker run --privileged --rm -it -v $HOME/zephyr-sdk:/workdir crops/poky-zephy
 Once in the container, clone the repos and build the SDK:
 
 ```
-workdir$ ./meta-zephyr-sdk-clone.sh
-workdir$ ./meta-zephyr-sdk-build.sh
+workdir$ ./meta-zephyr-sdk/scripts/meta-zephyr-sdk-clone.sh
+workdir$ ./meta-zephyr-sdk/scripts/meta-zephyr-sdk-build.sh
 ```
 
 When finished, the resulting SDK binary can be found under

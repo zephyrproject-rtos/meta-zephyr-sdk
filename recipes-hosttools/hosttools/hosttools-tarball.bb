@@ -25,6 +25,7 @@ TOOLCHAIN_HOST_TASK ?= "\
     nativesdk-dtc \
     nativesdk-python-yaml \
     nativesdk-python3-yaml \
+    nativesdk-hidapi-libraw \
     "
 
 TOOLCHAIN_OUTPUTNAME ?= "${DISTRO}-${SDKMACHINE}-hosttools-standalone-${DISTRO_VERSION}"

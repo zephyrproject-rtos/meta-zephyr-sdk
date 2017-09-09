@@ -43,6 +43,6 @@ if [ -d $META_ZEPHYR_SDK_SOURCE/patches ] ; then
 	echo "Patching poky in: $PWD"
 	for i in $META_ZEPHYR_SDK_SOURCE/patches/*.patch;
 	do
-	    patch -s -p0 < $i;
+	    patch -s -p1 < $i;
 	done
 fi

@@ -11,7 +11,6 @@ PR = "r0"
 SRCREV = "b5b2e1779b6cd2edda3066bbbf0921a2d6b1c3c0"
 SRC_URI = "git://github.com/signal11/hidapi.git;protocol=https \
         file://libusb.h \
-        file://do-not-build-hidraw.patch \
         "
 
 BBCLASSEXTEND += " native nativesdk"

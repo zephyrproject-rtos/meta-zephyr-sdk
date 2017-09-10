@@ -45,7 +45,7 @@ do_install() {
 	# (OpenOCD searches for HIDAPI via pkgconfig)
 	install -d ${D}${libdir}/pkgconfig
 	cp ${S}/pc/hidapi-hidraw.pc ${D}${libdir}/pkgconfig
-	rm ${D}${includedir}/hidapi/hidapi.h
+	#rm ${D}${includedir}/hidapi/hidapi.h
 }
 
 FILES_${PN} += "${base_libdir}/*.so.*"

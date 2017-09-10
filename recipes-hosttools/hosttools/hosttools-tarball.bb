@@ -8,7 +8,6 @@ TOOLCHAIN_TARGET_TASK ?= ""
 
 TOOLCHAIN_HOST_TASK ?= "\
     nativesdk-zephyr-qemu \
-    nativesdk-hidapi-libusb \
     nativesdk-python \
     nativesdk-python-ply \
     nativesdk-python3 \

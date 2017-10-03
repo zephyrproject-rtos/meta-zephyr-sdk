@@ -1,33 +1,33 @@
-From 2e03dcfa536688dd31defd53c3cb8ed0f7aced22 Mon Sep 17 00:00:00 2001
+From 7cbb9889748c78721b2f10c64fc1ce3d15d1782c Mon Sep 17 00:00:00 2001
 From: Max Filippov <jcmvbkbc@gmail.com>
 Date: Wed, 22 Feb 2017 19:01:12 -0800
-Subject: [PATCH] target/xtensa: add sample_controller core
+Subject: [PATCH 2/2] target-xtensa: add sample_controller core
 
 Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 ---
- target/xtensa/Makefile.objs                       |   1 +
- target/xtensa/core-sample_controller.c            |  22 +
- target/xtensa/core-sample_controller/core-isa.h   | 644 ++++++++++++++++++++++
- target/xtensa/core-sample_controller/gdb-config.c | 140 +++++
+ target-xtensa/Makefile.objs                       |   1 +
+ target-xtensa/core-sample_controller.c            |  22 +
+ target-xtensa/core-sample_controller/core-isa.h   | 644 ++++++++++++++++++++++
+ target-xtensa/core-sample_controller/gdb-config.c | 140 +++++
  4 files changed, 807 insertions(+)
- create mode 100644 target/xtensa/core-sample_controller.c
- create mode 100644 target/xtensa/core-sample_controller/core-isa.h
- create mode 100644 target/xtensa/core-sample_controller/gdb-config.c
+ create mode 100644 target-xtensa/core-sample_controller.c
+ create mode 100644 target-xtensa/core-sample_controller/core-isa.h
+ create mode 100644 target-xtensa/core-sample_controller/gdb-config.c
 
-diff --git a/target/xtensa/Makefile.objs b/target/xtensa/Makefile.objs
+diff --git a/target-xtensa/Makefile.objs b/target-xtensa/Makefile.objs
 index 481de91..0b8c144 100644
---- a/target/xtensa/Makefile.objs
-+++ b/target/xtensa/Makefile.objs
+--- a/target-xtensa/Makefile.objs
++++ b/target-xtensa/Makefile.objs
 @@ -5,3 +5,4 @@ obj-y += core-fsf.o
  obj-$(CONFIG_SOFTMMU) += monitor.o
  obj-y += translate.o op_helper.o helper.o cpu.o
  obj-y += gdbstub.o
 +obj-y += core-sample_controller.o
-diff --git a/target/xtensa/core-sample_controller.c b/target/xtensa/core-sample_controller.c
+diff --git a/target-xtensa/core-sample_controller.c b/target-xtensa/core-sample_controller.c
 new file mode 100644
 index 0000000..a97d45c
 --- /dev/null
-+++ b/target/xtensa/core-sample_controller.c
++++ b/target-xtensa/core-sample_controller.c
 @@ -0,0 +1,22 @@
 +#include "qemu/osdep.h"
 +#include "cpu.h"
@@ -51,11 +51,11 @@ index 0000000..a97d45c
 +};
 +
 +REGISTER_CORE(sample_controller)
-diff --git a/target/xtensa/core-sample_controller/core-isa.h b/target/xtensa/core-sample_controller/core-isa.h
+diff --git a/target-xtensa/core-sample_controller/core-isa.h b/target-xtensa/core-sample_controller/core-isa.h
 new file mode 100644
 index 0000000..e681e43
 --- /dev/null
-+++ b/target/xtensa/core-sample_controller/core-isa.h
++++ b/target-xtensa/core-sample_controller/core-isa.h
 @@ -0,0 +1,644 @@
 +/* 
 + * xtensa/config/core-isa.h -- HAL definitions that are dependent on Xtensa
@@ -701,11 +701,11 @@ index 0000000..e681e43
 +
 +#endif /* _XTENSA_CORE_CONFIGURATION_H */
 +
-diff --git a/target/xtensa/core-sample_controller/gdb-config.c b/target/xtensa/core-sample_controller/gdb-config.c
+diff --git a/target-xtensa/core-sample_controller/gdb-config.c b/target-xtensa/core-sample_controller/gdb-config.c
 new file mode 100644
 index 0000000..cc2493b
 --- /dev/null
-+++ b/target/xtensa/core-sample_controller/gdb-config.c
++++ b/target-xtensa/core-sample_controller/gdb-config.c
 @@ -0,0 +1,140 @@
 +/* Configuration for the Xtensa architecture for GDB, the GNU debugger.
 +
@@ -848,5 +848,5 @@ index 0000000..cc2493b
 +            0,0,&xtensa_mask5,0,0,0)
 +  XTREG_END
 -- 
-2.9.4
+2.1.4
 

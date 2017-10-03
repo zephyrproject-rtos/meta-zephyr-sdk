@@ -1,0 +1,127 @@
+[PATCH] arm: Support for Base Priority Mask Register
+
+Currently there is no emulation of the ARM BASEPRI register. Only reading/writing
+the register is implemented, but no functionality.
+The BASEPRI register defines the minimum priority for exception processing.
+When BASEPRI is set to a nonzero value, it prevents the activation of all
+exceptions with the same or lower priority level as the BASEPRI value.
+
+This patchset implements the expected functionality. BASEPRI reads/writes are
+implemented via helper routines (MSR/MRS), so a write to BASEPRI will result
+in a call gic_update with a new BASEPRI value. Only writes to BASEPRI are tracked,
+and gic_update is called only if BASEPRI has changed.
+
+http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0552a/CHDBIBGJ.html
+
+Signed-off-by: Juro Bystricky <juro.bystricky@intel.com>
+---
+ hw/intc/arm_gic.c                |  3 ++-
+ hw/intc/armv7m_nvic.c            | 14 ++++++++++++++
+ include/hw/intc/arm_gic_common.h | 10 ++++++++++
+ target-arm/cpu.h                 |  1 +
+ target-arm/helper.c              |  8 ++++++--
+ 5 files changed, 33 insertions(+), 3 deletions(-)
+
+
+diff --git a/hw/intc/arm_gic.c b/hw/intc/arm_gic.c
+index b30cc91..1917390 100644
+--- a/hw/intc/arm_gic.c
++++ b/hw/intc/arm_gic.c
+@@ -102,7 +102,8 @@ void gic_update(GICState *s)
+ 
+         irq_level = fiq_level = 0;
+ 
+-        if (best_prio < s->priority_mask[cpu]) {
++        if (best_prio < s->priority_mask[cpu] &&
++                            (s->basepri == 0 || best_prio < s->basepri)) {
+             s->current_pending[cpu] = best_irq;
+             if (best_prio < s->running_priority[cpu]) {
+                 int group = GIC_TEST_GROUP(best_irq, cm);
+diff --git a/hw/intc/armv7m_nvic.c b/hw/intc/armv7m_nvic.c
+index 06d8db6..e4cf3a7 100644
+--- a/hw/intc/armv7m_nvic.c
++++ b/hw/intc/armv7m_nvic.c
+@@ -153,6 +153,19 @@ void armv7m_nvic_complete_irq(void *opaque, int irq)
+     gic_complete_irq(&s->gic, 0, irq, MEMTXATTRS_UNSPECIFIED);
+ }
+ 
++
++/* Re-evaluate interrupts if BASEPRI register has changed */
++void armv7m_nvic_basepri_write(void *opaque, uint32_t val)
++{
++    nvic_state *nv = (nvic_state *)opaque;
++    GICState *s = &nv->gic;
++
++    if (val != s->basepri) {
++        s->basepri = val;
++        gic_update(s);
++    }
++}
++
+ static uint32_t nvic_readl(nvic_state *s, uint32_t offset)
+ {
+     ARMCPU *cpu;
+@@ -486,6 +499,7 @@ static void armv7m_nvic_reset(DeviceState *dev)
+     s->gic.priority_mask[0] = 0x100;
+     /* The NVIC as a whole is always enabled. */
+     s->gic.ctlr = 1;
++    s->gic.basepri = 0;
+     systick_reset(s);
+ }
+ 
+diff --git a/include/hw/intc/arm_gic_common.h b/include/hw/intc/arm_gic_common.h
+index f4c349a..c132555 100644
+--- a/include/hw/intc/arm_gic_common.h
++++ b/include/hw/intc/arm_gic_common.h
+@@ -100,6 +100,16 @@ typedef struct GICState {
+ 
+     uint32_t num_cpu;
+ 
++    /* BASEPRI register:
++     * The processor does not process any exception with a priority value
++     * greater than or equal to BASEPRI.
++     *
++     * 0x00 = no effect
++     * Nonzero = defines the base priority for exception processing.
++     */
++
++    uint32_t basepri;
++
+     MemoryRegion iomem; /* Distributor */
+     /* This is just so we can have an opaque pointer which identifies
+      * both this GIC and which CPU interface we should be accessing.
+diff --git a/target-arm/cpu.h b/target-arm/cpu.h
+index 76d824d..6a28015 100644
+--- a/target-arm/cpu.h
++++ b/target-arm/cpu.h
+@@ -1275,6 +1275,7 @@ uint32_t arm_phys_excp_target_el(CPUState *cs, uint32_t excp_idx,
+ void armv7m_nvic_set_pending(void *opaque, int irq);
+ int armv7m_nvic_acknowledge_irq(void *opaque);
+ void armv7m_nvic_complete_irq(void *opaque, int irq);
++void armv7m_nvic_basepri_write(void *opaque, uint32_t val);
+ 
+ /* Interface for defining coprocessor registers.
+  * Registers are defined in tables of arm_cp_reginfo structs
+diff --git a/target-arm/helper.c b/target-arm/helper.c
+index bdb842c..93dc978 100644
+--- a/target-arm/helper.c
++++ b/target-arm/helper.c
+@@ -8229,12 +8229,16 @@ void HELPER(v7m_msr)(CPUARMState *env, uint32_t reg, uint32_t val)
+         }
+         break;
+     case 17: /* BASEPRI */
+-        env->v7m.basepri = val & 0xff;
++        val &= 0xff;
++        env->v7m.basepri = val;
++        armv7m_nvic_basepri_write(env->nvic, val);
+         break;
+     case 18: /* BASEPRI_MAX */
+         val &= 0xff;
+-        if (val != 0 && (val < env->v7m.basepri || env->v7m.basepri == 0))
++        if (val != 0 && (val < env->v7m.basepri || env->v7m.basepri == 0)) {
+             env->v7m.basepri = val;
++            armv7m_nvic_basepri_write(env->nvic, val);
++        }
+         break;
+     case 19: /* FAULTMASK */
+         if (val & 1) {

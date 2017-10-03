@@ -5,7 +5,7 @@ FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
 LIC_FILES_CHKSUM = "file://COPYING;md5=441c28d2cf86e15a37fa47e15a72fbac \
                     file://COPYING.LIB;endline=24;md5=c04def7ae38850e7d3ef548588159913"
 
-SRC_URI = "gitsm://github.com/qemu/qemu.git;tag=v2.10.0;protocol=https \
+SRC_URI = "gitsm://github.com/qemu/qemu.git;tag=v2.10.0-rc4;protocol=https \
 	file://0001-target-xtensa-add-sample_controller-core.patch \
 	file://0001-qemu-nios2-Add-Altera-MAX-10-board-support-for-Zephy.patch \
 "

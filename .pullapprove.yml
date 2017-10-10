@@ -1,4 +1,9 @@
 version: 2
+
+
+requirements:
+ signed_off_by:
+   required: true
 groups:
   code-review:
     approve_by_comment:

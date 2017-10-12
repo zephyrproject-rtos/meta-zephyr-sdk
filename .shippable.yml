@@ -10,6 +10,7 @@ env:
         - SDK_TARGET=arm
         - SDK_TARGET=iamcu
         - SDK_TARGET=arc
+        - SDK_TARGET=mips
         - SDK_TARGET=nios2
         - SDK_TARGET=riscv32
 

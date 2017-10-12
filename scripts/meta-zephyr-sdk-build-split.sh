@@ -187,19 +187,21 @@ cp ./tmp/deploy/sdk/*.sh $TOOLCHAINS
 header "Building x86 toolchain...done"
 fi
 
+if [ "$1" = "mips" ]; then
 #  build MIPS toolchain
-#header "Building MIPS toolchain..."
-#newbuild build-zephyr-mips  > /dev/null
-#setconf_var "MACHINE" "qemumips" $localconf
-#setconf_var "TCLIBC" "baremetal" $localconf
-#setconf_var "TOOLCHAIN_TARGET_TASK_append" " newlib" $localconf
-#rm -f ./tmp/deploy/sdk/*.sh
-#bitbake meta-toolchain -c clean  > /dev/null
-#bitbake meta-toolchain
-#[ $? -ne 0 ] && echo "Error(s) encountered during bitbake." && exit 1
-#cp ./tmp/deploy/sdk/*.sh $TOOLCHAINS
-#[ $? -ne 0 ] && exit 1
-#header "Building MIPS toolchain...done"
+header "Building MIPS toolchain..."
+newbuild build-zephyr-mips  > /dev/null
+setconf_var "MACHINE" "qemumips" $localconf
+setconf_var "TCLIBC" "baremetal" $localconf
+setconf_var "TOOLCHAIN_TARGET_TASK_append" " newlib" $localconf
+rm -f ./tmp/deploy/sdk/*.sh
+bitbake meta-toolchain -c clean  > /dev/null
+bitbake meta-toolchain
+[ $? -ne 0 ] && echo "Error(s) encountered during bitbake." && exit 1
+cp ./tmp/deploy/sdk/*.sh $TOOLCHAINS
+[ $? -ne 0 ] && exit 1
+header "Building MIPS toolchain...done"
+fi
 
 if [ "$1" = "arc" ]; then
 # build ARC toolchain...

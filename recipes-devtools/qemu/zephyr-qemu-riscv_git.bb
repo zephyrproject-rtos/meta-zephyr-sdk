@@ -6,7 +6,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=441c28d2cf86e15a37fa47e15a72fbac \
                     file://COPYING.LIB;endline=24;md5=c04def7ae38850e7d3ef548588159913"
 
 SRCREV = "b12cfa344681687c7adbc5fa66590182df3748b9"
-SRC_URI = "git://github.com/riscv/riscv-qemu.git;protocol=https "
+SRC_URI = "git://github.com/riscv/riscv-qemu.git;protocol=https;nobranch=1"
 
 BBCLASSEXTEND = "native nativesdk"
 INHIBIT_PACKAGE_DEBUG_SPLIT = "1"

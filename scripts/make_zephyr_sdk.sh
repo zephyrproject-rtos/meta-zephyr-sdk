@@ -37,7 +37,8 @@
 # Edit as needed:
 version_major=0
 version_minor=9
-subversion_minor=2
+subversion_minor=3
+prerelease=rc2
 
 if [ "$1" != "" ] ; then
     product_name=$1
@@ -51,6 +52,10 @@ if [ "$subversion_minor" -ne "0" ]; then
     sdk_version=$version_major.$version_minor.$subversion_minor
 else
     sdk_version=$version_major.$version_minor
+fi
+
+if [ -n "$prerelease" ]; then
+    sdk_version=${sdk_version}-${prerelease}
 fi
 
 setup=toolchains/setup.sh

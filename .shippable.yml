@@ -18,7 +18,7 @@ build:
     cache: false
     pre_ci_boot:
         image_name: zephyrprojectrtos/ci
-        image_tag: master.43
+        image_tag: v0.4-rc1
         pull: true
         options: "-e HOME=/home/buildslave --privileged=true --tty --net=bridge --user buildslave"
 
@@ -35,3 +35,8 @@ build:
             cp ./meta-zephyr-sdk/scripts/template_dir ./meta-zephyr-sdk/scripts/toolchains/;
             aws s3 sync ./meta-zephyr-sdk/scripts/toolchains/ ${S3_PATH}/toolchains/;
           fi
+
+integrations:
+  generic:
+    - integrationName: aws_s3_simple
+

@@ -3,7 +3,7 @@ version: 2
 
 requirements:
  signed_off_by:
-   required: true
+   required: false
 groups:
   code-review:
     approve_by_comment:

@@ -38,7 +38,7 @@
 version_major=0
 version_minor=9
 subversion_minor=3
-prerelease=rc2
+prerelease=rc3
 
 if [ "$1" != "" ] ; then
     product_name=$1

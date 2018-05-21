@@ -16,12 +16,13 @@ def binutils_branch_version(d):
 
 BINUPV = "${@binutils_branch_version(d)}"
 
-PV = "2.26+gitarc"
+PV = "2.29+gitarc"
 
 #SRCREV = "bcbe0bfce780e426f2e3b78013cb49326ee76824"
-SRCREV="3bfd1155a7f0ff9e10c5ba91f089ae0bb5bfbde1"
+# arc-2018.03-rc2
+SRCREV="595e2800153fa16067c1eaf769758d67046efcfb"
 SRC_URI = "\
-     git://github.com/foss-for-synopsys-dwc-arc-processors/binutils-gdb.git;branch=arc-2.26-dev \
+     git://github.com/foss-for-synopsys-dwc-arc-processors/binutils-gdb.git;branch=arc-2018.03 \
      "
 
 S  = "${WORKDIR}/git"

@@ -20,7 +20,6 @@ TOOLCHAIN_HOST_TASK ?= "\
     nativesdk-bossa \
     nativesdk-kconfig-frontends \
     nativesdk-open-firmware-tools \
-    nativesdk-zephyr-qemu-riscv  \
     nativesdk-dtc \
     nativesdk-python-yaml \
     nativesdk-python3-yaml \

@@ -37,7 +37,7 @@
 # Edit as needed:
 version_major=0
 version_minor=9
-subversion_minor=4
+subversion_minor=5
 prerelease=
 
 if [ "$1" != "" ] ; then

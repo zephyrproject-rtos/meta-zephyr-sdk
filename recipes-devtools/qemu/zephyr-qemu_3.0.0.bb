@@ -206,16 +206,6 @@ do_configure() {
         --sysconfdir=${sysconfdir} --libexecdir=${libexecdir} --localstatedir=${localstatedir}
 }
 
-do_install_append() {
-    # Remove additional files...
-    # These are the only files we want to keep (vgabios-cirrus.bin not really needed):
-    find  ${D}/${SDKPATHNATIVE}/usr/share/qemu \
-         ! -name 'en-us' ! -name 'common'  ! -name 'modifiers' \
-         ! -name 'bios.bin' \
-         ! -name 'multiboot.bin' \
-         ! -name 'vgabios-cirrus.bin' -type f -exec rm -f {} +
-}
-
 FILES_${PN} = " \
    /opt/zephyr-sdk \
   "

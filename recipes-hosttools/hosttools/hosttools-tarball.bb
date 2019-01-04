@@ -9,20 +9,15 @@ TOOLCHAIN_TARGET_TASK ?= ""
 TOOLCHAIN_HOST_TASK ?= "\
     nativesdk-zephyr-qemu \
     nativesdk-python \
-    nativesdk-python-ply \
     nativesdk-python3 \
     nativesdk-python3-misc \
     nativesdk-python3-textutils \
     nativesdk-python3-core \
     nativesdk-python3-modules \
-    nativesdk-python3-ply \
     nativesdk-openocd \
     nativesdk-bossa \
-    nativesdk-kconfig-frontends \
     nativesdk-open-firmware-tools \
     nativesdk-dtc \
-    nativesdk-python-yaml \
-    nativesdk-python3-yaml \
     nativesdk-hidapi-libraw \
     "
 

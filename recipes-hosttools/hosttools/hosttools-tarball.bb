@@ -8,12 +8,6 @@ TOOLCHAIN_TARGET_TASK ?= ""
 
 TOOLCHAIN_HOST_TASK ?= "\
     nativesdk-zephyr-qemu \
-    nativesdk-python \
-    nativesdk-python3 \
-    nativesdk-python3-misc \
-    nativesdk-python3-textutils \
-    nativesdk-python3-core \
-    nativesdk-python3-modules \
     nativesdk-openocd \
     nativesdk-bossa \
     nativesdk-open-firmware-tools \
